@@ -274,7 +274,7 @@ public abstract class AndARActivity extends Activity implements Callback, Uncaug
 	/* The GLSurfaceView changed
 	 * @see android.view.SurfaceHolder.Callback#surfaceChanged(android.view.SurfaceHolder, int, int, int)
 	 */
-	@Override
+
 	public void surfaceChanged(SurfaceHolder holder, int format, int width,
 			int height) {
 		
@@ -284,7 +284,7 @@ public abstract class AndARActivity extends Activity implements Callback, Uncaug
 	 * The camera will be opened and the preview started 
 	 * @see android.view.SurfaceHolder.Callback#surfaceCreated(android.view.SurfaceHolder)
 	 */
-	@Override
+
 	public void surfaceCreated(SurfaceHolder holder) {
 		surfaceCreated = true;			
 	}
@@ -293,7 +293,7 @@ public abstract class AndARActivity extends Activity implements Callback, Uncaug
 	 * The camera will be closed and the preview stopped.
 	 * @see android.view.SurfaceHolder.Callback#surfaceDestroyed(android.view.SurfaceHolder)
 	 */
-	@Override
+
 	public void surfaceDestroyed(SurfaceHolder holder) {
 
 	}
