@@ -2,4 +2,7 @@ Stoven
 hello
 
 
-Y HElo Thar!
+int main(){
+
+	return 0;
+}
