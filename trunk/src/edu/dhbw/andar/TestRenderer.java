@@ -230,7 +230,7 @@ class TestRenderer implements Renderer, PreviewFrameSink {
 	/* (non-Javadoc)
 	 * @see edu.dhbw.andopenglcam.interfaces.PreviewFrameSink#setNextFrame(java.nio.ByteBuffer)
 	 */
-	@Override
+
 	public final void setNextFrame(ByteBuffer buf) {
 		Log.i("AndARRenderer", "Setting FrameEnqueued True!");
 		this.frameData = buf;
@@ -240,7 +240,7 @@ class TestRenderer implements Renderer, PreviewFrameSink {
 	/* (non-Javadoc)
 	 * @see edu.dhbw.andopenglcam.interfaces.PreviewFrameSink#getFrameLock()
 	 */
-	@Override
+
 	public ReentrantLock getFrameLock() {
 		return frameLock;
 	}
@@ -248,7 +248,7 @@ class TestRenderer implements Renderer, PreviewFrameSink {
 	/* Set the size of the texture(must be power of two)
 	 * @see edu.dhbw.andopenglcam.interfaces.PreviewFrameSink#setTextureSize()
 	 */
-	@Override
+
 	public void setPreviewFrameSize(int textureSize, int realWidth, int realHeight) {
 		Log.i("AndARRenderer", "Setting Preview Frame Size");
 		//test if it is a power of two number
@@ -259,7 +259,7 @@ class TestRenderer implements Renderer, PreviewFrameSink {
 		this.previewFrameWidth = realWidth;		
 	}
 	
-	@Override
+
 	public void setMode(int pMode) {
 		Log.i("AndARRenderer", "Setting Mode");
 		switch(pMode) {		

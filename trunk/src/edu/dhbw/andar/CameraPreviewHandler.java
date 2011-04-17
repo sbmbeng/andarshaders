@@ -186,7 +186,7 @@ public class CameraPreviewHandler implements PreviewCallback {
 	 * http://code.google.com/p/android/issues/detail?id=823
 	 * @see android.hardware.Camera.PreviewCallback#onPreviewFrame(byte[], android.hardware.Camera)
 	 */
-	@Override
+
 	public synchronized void onPreviewFrame(byte[] data, Camera camera) {
 			//prevent null pointer exceptions
 			if (data == null)
@@ -381,12 +381,12 @@ public class CameraPreviewHandler implements PreviewCallback {
 			}
 		}
 
-		@Override
+
 		public void onAutoFocus(boolean arg0, Camera arg1) {
 			
 		}
 
-		@Override
+
 		public void makerVisibilityChanged(boolean visible) {
 			this.visible = visible;
 			if(!visible) {

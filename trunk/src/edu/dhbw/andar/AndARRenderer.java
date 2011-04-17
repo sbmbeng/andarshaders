@@ -117,7 +117,7 @@ public class AndARRenderer implements Renderer, PreviewFrameSink{
 	/* (non-Javadoc)
 	 * @see android.opengl.GLSurfaceView.Renderer#onDrawFrame(javax.microedition.khronos.opengles.GL10)
 	 */
-	@Override
+
 	public void onDrawFrame(GL10 gl) {
 		gl.glClear(GL10.GL_COLOR_BUFFER_BIT | GL10.GL_DEPTH_BUFFER_BIT);		
 		
@@ -185,7 +185,7 @@ public class AndARRenderer implements Renderer, PreviewFrameSink{
 	/* 
 	 * @see android.opengl.GLSurfaceView.Renderer#onSurfaceChanged(javax.microedition.khronos.opengles.GL10, int, int)
 	 */
-	@Override
+
 	public void onSurfaceChanged(GL10 gl, int width, int height) {
 		//TODO handle landscape view
 		gl.glViewport(0, 0, width, height);
@@ -205,7 +205,7 @@ public class AndARRenderer implements Renderer, PreviewFrameSink{
 	/* (non-Javadoc)
 	 * @see android.opengl.GLSurfaceView.Renderer#onSurfaceCreated(javax.microedition.khronos.opengles.GL10, javax.microedition.khronos.egl.EGLConfig)
 	 */
-	@Override
+
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		gl.glClearColor(0,0,0,0);
 		gl.glClearDepthf(1.0f);
@@ -297,7 +297,7 @@ public class AndARRenderer implements Renderer, PreviewFrameSink{
 	/* (non-Javadoc)
 	 * @see edu.dhbw.andopenglcam.interfaces.PreviewFrameSink#setNextFrame(java.nio.ByteBuffer)
 	 */
-	@Override
+
 	public final void setNextFrame(ByteBuffer buf) {
 		this.frameData = buf;
 		this.frameEnqueued = true;
@@ -307,7 +307,7 @@ public class AndARRenderer implements Renderer, PreviewFrameSink{
 	/* (non-Javadoc)
 	 * @see edu.dhbw.andopenglcam.interfaces.PreviewFrameSink#getFrameLock()
 	 */
-	@Override
+
 	public ReentrantLock getFrameLock() {
 		return frameLock;
 	}
@@ -315,7 +315,7 @@ public class AndARRenderer implements Renderer, PreviewFrameSink{
 	/* Set the size of the texture(must be power of two)
 	 * @see edu.dhbw.andopenglcam.interfaces.PreviewFrameSink#setTextureSize()
 	 */
-	@Override
+
 	public void setPreviewFrameSize(int textureSize, int realWidth, int realHeight) {
 		//test if it is a power of two number
 		if (!GenericFunctions.isPowerOfTwo(textureSize))

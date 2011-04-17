@@ -57,7 +57,7 @@ public class CustomActivity extends AndARActivity {
 	 * This exception is rather severe and can not be recovered from.
 	 * Inform the user and shut down the application.
 	 */
-	@Override
+
 	public void uncaughtException(Thread thread, Throwable ex) {
 		Log.e("AndAR EXCEPTION", ex.getMessage());
 		finish();
