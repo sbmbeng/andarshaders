@@ -40,7 +40,7 @@ public abstract class ARObject {
 	private double markerWidth;
 	private double[] center;
 	//this object must be locked while altering the glMatrix
-	private float[] glMatrix = new float[16];
+	protected float[] glMatrix = new float[16];
 	protected static float[] glCameraMatrix = new float[16];
 	private FloatBuffer glMatrixBuffer;
 	protected static FloatBuffer glCameraMatrixBuffer;
@@ -146,9 +146,9 @@ public abstract class ARObject {
 	 * TODO replace wrap by real floatbuffer
 	 * @param gl
 	 */
-	public synchronized void draw(GL10 gl, AndARRenderer renderer) {
+	public synchronized void draw(GL10 gl ) {
 		if(!initialized) {
-			init(gl, renderer);
+			init(gl);
 			initialized = true;
 		}
 		if( glCameraMatrixBuffer != null) {
@@ -167,6 +167,6 @@ public abstract class ARObject {
 		}
 	}
 	
-	public abstract void init(GL10 gl, AndARRenderer renderer); 
+	public abstract void init(GL10 gl ); 
 	
 }

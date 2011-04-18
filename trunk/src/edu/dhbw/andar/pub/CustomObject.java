@@ -57,8 +57,8 @@ public class CustomObject extends ARObject {
 	 * as the corresponding translation matrix will already be applied.
 	 */
 	@Override
-	public final void draw(GL10 gl, AndARRenderer renderer) {
-		super.draw(gl, renderer);
+	public final void draw(GL10 gl) {
+		super.draw(gl);
 		
 		gl.glMaterialfv(GL10.GL_FRONT_AND_BACK, GL10.GL_SPECULAR,mat_flash);
 		gl.glMaterialfv(GL10.GL_FRONT_AND_BACK, GL10.GL_SHININESS, mat_flash_shiny);	
@@ -73,7 +73,7 @@ public class CustomObject extends ARObject {
 	    box.draw(gl);
 	}
 	@Override
-	public void init(GL10 gl, AndARRenderer renderer) {
+	public void init(GL10 gl) {
 		// TODO Auto-generated method stub
 		
 	}
