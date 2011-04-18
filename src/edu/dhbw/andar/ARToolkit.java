@@ -236,13 +236,13 @@ public class ARToolkit {
 	 * Draw all ARObjects.
 	 * @param gl
 	 */
-	public final void draw(GL10 gl, AndARRenderer renderer) {
+	public final void draw(GL10 gl) {
 		if(initialized) {
 			if(Config.DEBUG)
 				Log.i("MarkerInfo", "going to draw opengl stuff now");
 			for (ARObject obj : arobjects) {
 				if(obj.isVisible())
-					obj.draw(gl, renderer);
+					obj.draw(gl);
 			}
 		}
 	}
@@ -251,10 +251,10 @@ public class ARToolkit {
 	 * initialize the objects.
 	 * @param gl
 	 */
-	public final void initGL(GL10 gl, AndARRenderer renderer) {
+	public final void initGL(GL10 gl) {
 		for (ARObject obj : arobjects) {
 			if(obj.isVisible())
-				obj.init(gl, renderer);
+				obj.init(gl);
 		}
 	}
 	

@@ -137,11 +137,9 @@ public class AndARGLES20Renderer extends AndARRenderer {
 		Thread.currentThread().setUncaughtExceptionHandler(activity);
 		
 		// TODO: Make these work again
-		/*
 		markerInfo.initGL(null);
 		if(customRenderer != null)
 			customRenderer.initGL(null);
-			*/
 		
 		Matrix.setLookAtM(mVMatrix, 0, 0, 0, 0, 0.0f, 0.0f, 5.0f, 0f, 1.0f, 0.0f);
 	}
@@ -197,7 +195,6 @@ public class AndARGLES20Renderer extends AndARRenderer {
 		GraphicsUtil.checkGlError("glDrawArrays");
 
 		// TODO: Make these work again
-		/*
 		if(customRenderer != null)
 			customRenderer.setupEnv(null);
 		
@@ -211,7 +208,6 @@ public class AndARGLES20Renderer extends AndARRenderer {
 			takeScreenshot = false;
 			captureScreenshot(glUnused);		
 		}
-		*/
 	}
 
 	/* 

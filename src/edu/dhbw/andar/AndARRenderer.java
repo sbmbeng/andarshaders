@@ -160,7 +160,7 @@ public class AndARRenderer implements Renderer, PreviewFrameSink{
 		gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
 
 		if(customRenderer != null)
-			customRenderer.setupEnv(gl, this);
+			customRenderer.setupEnv(gl);
 		else {
 			gl.glEnable(GL10.GL_LIGHTING);
 			gl.glLightfv(GL10.GL_LIGHT0, GL10.GL_AMBIENT, ambientLightBuffer);
@@ -170,10 +170,10 @@ public class AndARRenderer implements Renderer, PreviewFrameSink{
 			gl.glEnable(GL10.GL_LIGHT0);
 		}
 		
-		markerInfo.draw(gl, this);
+		markerInfo.draw(gl);
 		
 		if(customRenderer != null)
-			customRenderer.draw(gl, this);
+			customRenderer.draw(gl);
 		
 		//take a screenshot, if desired
 		if(takeScreenshot) {
@@ -223,9 +223,9 @@ public class AndARRenderer implements Renderer, PreviewFrameSink{
 		//register unchaught exception handler
 		Thread.currentThread().setUncaughtExceptionHandler(activity);
 		
-		markerInfo.initGL(gl, this);
+		markerInfo.initGL(gl);
 		if(customRenderer != null)
-			customRenderer.initGL(gl, this);
+			customRenderer.initGL(gl);
 	}
 	
 	/**
@@ -233,13 +233,12 @@ public class AndARRenderer implements Renderer, PreviewFrameSink{
 	 * http://www.anddev.org/how_to_get_opengl_screenshot__useful_programing_hint-t829.html
 	 * @param gl The gl context
 	 */
-	private void captureScreenshot(GL10 gl) {
+	protected void captureScreenshot(GL10 gl) {
 		int[] tmp = new int[screenHeight*screenWidth];
 		int[] screenshot = new int[screenHeight*screenWidth];
 		Buffer screenshotBuffer = IntBuffer.wrap(tmp);
 		screenshotBuffer.position(0);
 		copyScreenToBuffer(gl, screenshotBuffer);
-		gl.glReadPixels(0,0,screenWidth,screenHeight, GL10.GL_RGBA, GL10.GL_UNSIGNED_BYTE, screenshotBuffer); 
 		for(int i=0; i<screenHeight; i++) {
 			// remember, that OpenGL bitmap is incompatible with Android bitmap and so, some correction needed.      
 			for(int j=0; j<screenWidth; j++) { 

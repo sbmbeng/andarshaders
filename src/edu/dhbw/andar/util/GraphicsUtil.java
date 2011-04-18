@@ -196,10 +196,10 @@ public class GraphicsUtil {
 		String fs = "";
 		try {
 			InputStream is;
-			is = context.getAssets().open("shaders/passthrough.vs");
+			is = context.getAssets().open(vspath);
 			vs = IO.convertStreamToString(is);
 			is.close();
-			is = context.getAssets().open("shaders/passthrough.fs");
+			is = context.getAssets().open(fspath);
 			fs = IO.convertStreamToString(is);
 			is.close();
 		} catch(IOException e) {

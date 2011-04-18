@@ -29,12 +29,12 @@ public class CustomRenderer implements OpenGLRenderer {
 	private FloatBuffer diffuseLightBuffer1 = GraphicsUtil.makeFloatBuffer(diffuselight1);
 	private FloatBuffer ambientLightBuffer1 = GraphicsUtil.makeFloatBuffer(ambientlight1);
 	
-	public final void draw(GL10 gl, AndARRenderer renderer) {
+	public final void draw(GL10 gl) {
 		//draw non AR stuff here.
 	}
 
 
-	public final void setupEnv(GL10 gl, AndARRenderer renderer) {
+	public final void setupEnv(GL10 gl) {
 		gl.glEnable(GL10.GL_LIGHTING);
 		gl.glLightfv(GL10.GL_LIGHT1, GL10.GL_AMBIENT, ambientLightBuffer1);
 		gl.glLightfv(GL10.GL_LIGHT1, GL10.GL_DIFFUSE, diffuseLightBuffer1);
@@ -45,10 +45,10 @@ public class CustomRenderer implements OpenGLRenderer {
 		gl.glDisableClientState(GL10.GL_TEXTURE_COORD_ARRAY);
 	    gl.glDisable(GL10.GL_TEXTURE_2D);
 	    
-		initGL(gl, renderer);
+		initGL(gl);
 	}
 	
-	public final void initGL(GL10 gl, AndARRenderer renderer) {
+	public final void initGL(GL10 gl) {
 		gl.glDisable(GL10.GL_COLOR_MATERIAL);
 		gl.glEnable(GL10.GL_CULL_FACE);
 		gl.glShadeModel(GL10.GL_SMOOTH);
