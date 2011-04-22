@@ -96,7 +96,7 @@ public class AndARGLES20Renderer extends AndARRenderer {
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
 		// Load shaders from assets, compile and load a program
-		mProgram = GraphicsUtil.loadProgram( activity, "shaders/passthrough.vs", "shaders/passthrough.fs" );
+		mProgram = GraphicsUtil.loadProgram( activity, "shaders/simpletexture.vs", "shaders/simpletexture.fs" );
         if (mProgram == 0) { 
             return;
         }
