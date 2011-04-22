@@ -9,76 +9,74 @@ import edu.dhbw.andar.util.GraphicsUtil;
 public class SimpleBox {
 	private FloatBuffer box;
 	private FloatBuffer normals;
+	private final float[] boxverts =  {
+			// FRONT
+			-25.0f, -25.0f,  25.0f,
+			 25.0f, -25.0f,  25.0f,
+			-25.0f,  25.0f,  25.0f,
+			 25.0f,  25.0f,  25.0f,
+			// BACK
+			-25.0f, -25.0f, -25.0f,
+			-25.0f,  25.0f, -25.0f,
+			 25.0f, -25.0f, -25.0f,
+			 25.0f,  25.0f, -25.0f,
+			// LEFT
+			-25.0f, -25.0f,  25.0f,
+			-25.0f,  25.0f,  25.0f,
+			-25.0f, -25.0f, -25.0f,
+			-25.0f,  25.0f, -25.0f,
+			// RIGHT
+			 25.0f, -25.0f, -25.0f,
+			 25.0f,  25.0f, -25.0f,
+			 25.0f, -25.0f,  25.0f,
+			 25.0f,  25.0f,  25.0f,
+			// TOP
+			-25.0f,  25.0f,  25.0f,
+			 25.0f,  25.0f,  25.0f,
+			 -25.0f,  25.0f, -25.0f,
+			 25.0f,  25.0f, -25.0f,
+			// BOTTOM
+			-25.0f, -25.0f,  25.0f,
+			-25.0f, -25.0f, -25.0f,
+			 25.0f, -25.0f,  25.0f,
+			 25.0f, -25.0f, -25.0f,
+	};
+	private final float boxnormals[] =  {
+			// FRONT
+			0.0f, 0.0f,  1.0f,
+			0.0f, 0.0f,  1.0f,
+			0.0f, 0.0f,  1.0f,
+			0.0f, 0.0f,  1.0f,
+			// BACK
+			0.0f, 0.0f,  -1.0f,
+			0.0f, 0.0f,  -1.0f,
+			0.0f, 0.0f,  -1.0f,
+			0.0f, 0.0f,  -1.0f,
+			// LEFT
+			-1.0f, 0.0f,  0.0f,
+			-1.0f, 0.0f,  0.0f,
+			-1.0f, 0.0f,  0.0f,
+			-1.0f, 0.0f,  0.0f,
+			// RIGHT
+			1.0f, 0.0f,  0.0f,
+			1.0f, 0.0f,  0.0f,
+			1.0f, 0.0f,  0.0f,
+			1.0f, 0.0f,  0.0f,
+			// TOP
+			0.0f, 1.0f,  0.0f,
+			0.0f, 1.0f,  0.0f,
+			0.0f, 1.0f,  0.0f,
+			0.0f, 1.0f,  0.0f,
+			// BOTTOM
+			0.0f, -1.0f,  0.0f,
+			0.0f, -1.0f,  0.0f,
+			0.0f, -1.0f,  0.0f,
+			0.0f, -1.0f,  0.0f,
+	};
 	public SimpleBox() {
-		float boxf[] =  {
-				// FRONT
-				-25.0f, -25.0f,  25.0f,
-				 25.0f, -25.0f,  25.0f,
-				-25.0f,  25.0f,  25.0f,
-				 25.0f,  25.0f,  25.0f,
-				// BACK
-				-25.0f, -25.0f, -25.0f,
-				-25.0f,  25.0f, -25.0f,
-				 25.0f, -25.0f, -25.0f,
-				 25.0f,  25.0f, -25.0f,
-				// LEFT
-				-25.0f, -25.0f,  25.0f,
-				-25.0f,  25.0f,  25.0f,
-				-25.0f, -25.0f, -25.0f,
-				-25.0f,  25.0f, -25.0f,
-				// RIGHT
-				 25.0f, -25.0f, -25.0f,
-				 25.0f,  25.0f, -25.0f,
-				 25.0f, -25.0f,  25.0f,
-				 25.0f,  25.0f,  25.0f,
-				// TOP
-				-25.0f,  25.0f,  25.0f,
-				 25.0f,  25.0f,  25.0f,
-				 -25.0f,  25.0f, -25.0f,
-				 25.0f,  25.0f, -25.0f,
-				// BOTTOM
-				-25.0f, -25.0f,  25.0f,
-				-25.0f, -25.0f, -25.0f,
-				 25.0f, -25.0f,  25.0f,
-				 25.0f, -25.0f, -25.0f,
-			};
-		float normalsf[] =  {
-				// FRONT
-				0.0f, 0.0f,  1.0f,
-				0.0f, 0.0f,  1.0f,
-				0.0f, 0.0f,  1.0f,
-				0.0f, 0.0f,  1.0f,
-				// BACK
-				0.0f, 0.0f,  -1.0f,
-				0.0f, 0.0f,  -1.0f,
-				0.0f, 0.0f,  -1.0f,
-				0.0f, 0.0f,  -1.0f,
-				// LEFT
-				-1.0f, 0.0f,  0.0f,
-				-1.0f, 0.0f,  0.0f,
-				-1.0f, 0.0f,  0.0f,
-				-1.0f, 0.0f,  0.0f,
-				// RIGHT
-				1.0f, 0.0f,  0.0f,
-				1.0f, 0.0f,  0.0f,
-				1.0f, 0.0f,  0.0f,
-				1.0f, 0.0f,  0.0f,
-				// TOP
-				0.0f, 1.0f,  0.0f,
-				0.0f, 1.0f,  0.0f,
-				0.0f, 1.0f,  0.0f,
-				0.0f, 1.0f,  0.0f,
-				// BOTTOM
-				0.0f, -1.0f,  0.0f,
-				0.0f, -1.0f,  0.0f,
-				0.0f, -1.0f,  0.0f,
-				0.0f, -1.0f,  0.0f,
-			};
-		
-		box = GraphicsUtil.makeFloatBuffer(boxf);
-		normals = GraphicsUtil.makeFloatBuffer(normalsf);
+		box = GraphicsUtil.makeFloatBuffer(boxverts);
+		normals = GraphicsUtil.makeFloatBuffer(boxnormals);
 	}
-	
 	
 	public final void draw(GL10 gl) {	
 	    gl.glEnableClientState(GL10.GL_VERTEX_ARRAY);
@@ -95,4 +93,8 @@ public class SimpleBox {
 	    gl.glDisableClientState(GL10.GL_VERTEX_ARRAY);
 	    gl.glDisableClientState(GL10.GL_NORMAL_ARRAY);
 	}
+	
+	// Accessors
+	public FloatBuffer verts() { return box; }
+	public FloatBuffer normals() { return normals; }
 }

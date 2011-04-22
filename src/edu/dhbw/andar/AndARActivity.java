@@ -73,6 +73,7 @@ public abstract class AndARActivity extends Activity implements Callback, Uncaug
 	private SurfaceHolder mSurfaceHolder = null;
 	private Preview previewSurface;
 	private boolean startPreviewRightAway;
+	private boolean gles20 = false;
 	
 	public AndARActivity() {
 		startPreviewRightAway = true;
@@ -108,16 +109,14 @@ public abstract class AndARActivity extends Activity implements Callback, Uncaug
             // If we aren't forcing GL10 and we have GLES20 available, we'll use it.
             glSurfaceView.setEGLContextClientVersion(2);
             renderer = new AndARGLES20Renderer(res, artoolkit, this);
+            gles20 = true;
         } else {
             // Just use GL10
             renderer = new AndARRenderer(res, artoolkit, this);
         }
         
-        //TestRenderer newrenderer = new TestRenderer(this);
-		//cameraHandler = new CameraPreviewHandler(glSurfaceView, newrenderer, res, artoolkit, camStatus);
         cameraHandler = new CameraPreviewHandler(glSurfaceView, renderer, res, artoolkit, camStatus);
         glSurfaceView.setRenderer(renderer);
-        //glSurfaceView.setRenderer(newrenderer);
         glSurfaceView.setRenderMode(GLSurfaceView.RENDERMODE_WHEN_DIRTY);
         glSurfaceView.getHolder().addCallback(this);
         
@@ -320,6 +319,22 @@ public abstract class AndARActivity extends Activity implements Callback, Uncaug
 	 */
 	public SurfaceView getSurfaceView() {
 		return glSurfaceView;
+	}
+	
+	/**
+	 * 
+	 * @return if the rendering is in OpenGL ES 2.0.
+	 */
+	public boolean isGLES20() {
+		return gles20;
+	}
+	
+	/**
+	 * 
+	 * @return the renderer being used in the glSurfaceView
+	 */
+	public AndARRenderer getRenderer() {
+		return renderer;
 	}
 	
 	class Preview extends SurfaceView implements SurfaceHolder.Callback {

@@ -18,7 +18,7 @@ public abstract class ARGLES20Object extends ARObject {
 	protected AndARGLES20Renderer mRenderer;
 	protected int mProgram;
 	protected int muMVPMatrixHandle;
-	protected float[] mMVPMatrix;
+	protected float[] mMVPMatrix = new float[16]; // Projection*ModelView Matrix
 	
 	public ARGLES20Object(String name, String patternName, double markerWidth, double[] markerCenter, AndARGLES20Renderer renderer) {
 		super(name, patternName, markerWidth, markerCenter);
@@ -33,14 +33,21 @@ public abstract class ARGLES20Object extends ARObject {
 	 */
 	@Override
 	public synchronized void draw( GL10 glUnused ) {
+		if(!initialized) {
+			init(glUnused);
+			initialized = true;
+		}
 		// Ensure we're using the program we need
 		GLES20.glUseProgram( mProgram );
 		
-		// Transform to where the marker is
-		Matrix.multiplyMM(mMVPMatrix, 0, glCameraMatrix, 0, glMatrix, 0);
-        GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, mMVPMatrix, 0);
-        
-        // Let the object draw
+		if( glCameraMatrixBuffer != null) {
+			// Transform to where the marker is
+			Matrix.multiplyMM(mMVPMatrix, 0, glCameraMatrix, 0, glMatrix, 0);
+			GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, mMVPMatrix, 0);
+			GraphicsUtil.checkGlError("glUniformMatrix4fv muMVPMatrixHandle");
+		}
+		
+		// Let the object draw
 		drawGLES20();
 	}
 
@@ -69,6 +76,24 @@ public abstract class ARGLES20Object extends ARObject {
             throw new RuntimeException("Requested shader does not have a uniform named uMVPMatrix");
         }
 	}
+	
+	/**
+	 * Calculates a screen space bounding box from an axis aligned bounding box
+	 * @param aabb [minx][miny][minz][maxx][maxy][maxz] -- see GraphicsUtil.calcAABB()
+	 * @return normalized screen space bounding box, [minx][miny][maxx][maxy]
+	 */
+	public float[] calcSSBB( float[] aabb ) {
+		// TODO: Calculate this shit. using the modelview and projection matrices
+		// http://www.opengl.org/sdk/docs/man/xhtml/gluProject.xml
+		// vector4 t;
+		// t = view_matrix * aabb; // v3 * m(4x3)
+		// t = proj_matrix * t; // v4 * m(4x4)
+	    // p_win.x = win_sizex * (t.x / t.w + 1.0f) * 0.5f;
+	    // p_win.y = win_sizey * (t.y / t.w + 1.0f) * 0.5f;
+		// Grab Min(XY) and Max(XY)
+		return aabb;
+	}
+	
 	
 	/**
 	 * Implement this method and setup GL to render your object here

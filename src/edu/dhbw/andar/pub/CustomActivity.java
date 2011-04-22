@@ -19,6 +19,7 @@ import android.view.MenuItem;
 import android.widget.Toast;
 import edu.dhbw.andar.ARToolkit;
 import edu.dhbw.andar.AndARActivity;
+import edu.dhbw.andar.AndARGLES20Renderer;
 import edu.dhbw.andar.exceptions.AndARException;
 import edu.dhbw.andopenglcam.R;
 
@@ -31,21 +32,32 @@ public class CustomActivity extends AndARActivity {
 	
 	private final int MENU_SCREENSHOT = 0;
 
-	CustomObject someObject;
 	ARToolkit artoolkit;
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
-		CustomRenderer renderer = new CustomRenderer();//optional, may be set to null
-		super.setNonARRenderer(renderer);//or might be omiteed
+		//CustomRenderer renderer = new CustomRenderer();//optional, may be set to null
+		//super.setNonARRenderer(renderer);//or might be omiteed
 		try {
 			artoolkit = super.getArtoolkit();
-			someObject = new CustomObject
+			if( super.isGLES20() )
+			{
+				CustomGL20Object someObject = new CustomGL20Object
+				("test", "patt.hiro", 80.0, new double[]{0,0}, (AndARGLES20Renderer) super.getRenderer());
+				artoolkit.registerARObject(someObject);
+				someObject = new CustomGL20Object
+				("test", "android.patt", 80.0, new double[]{0,0}, (AndARGLES20Renderer) super.getRenderer());
+				artoolkit.registerARObject(someObject);
+			}
+			else
+			{
+				CustomObject someObject = new CustomObject
 				("test", "patt.hiro", 80.0, new double[]{0,0});
-			artoolkit.registerARObject(someObject);
-			someObject = new CustomObject
-			("test", "android.patt", 80.0, new double[]{0,0});
-			artoolkit.registerARObject(someObject);
+				artoolkit.registerARObject(someObject);
+				someObject = new CustomObject
+				("test", "android.patt", 80.0, new double[]{0,0});
+				artoolkit.registerARObject(someObject);
+			}
 		} catch (AndARException ex){
 			//handle the exception, that means: show the user what happened
 			System.out.println("");

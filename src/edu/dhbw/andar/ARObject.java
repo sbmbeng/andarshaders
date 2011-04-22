@@ -48,7 +48,7 @@ public abstract class ARObject {
 	//this object must be locked while altering the transMat
 	private double[] transMat = new double[16];//[3][4] array
 	private int id;
-	private boolean initialized = false;
+	protected boolean initialized = false;
 	
 	/**
 	 * Create a new AR object.
@@ -121,23 +121,6 @@ public abstract class ARObject {
 	 */
 	public synchronized double[] getTransMatrix() {
 		return transMat;
-	}
-	
-	/**
-	 * Calculates a screen space bounding box from an axis aligned bounding box
-	 * @param aabb [minx][miny][minz][maxx][maxy][maxz] -- see GraphicsUtil.calcAABB()
-	 * @return normalized screen space bounding box, [minx][miny][maxx][maxy]
-	 */
-	public float[] calcSSBB( float[] aabb ) {
-		// TODO: Calculate this shit. using the modelview and projection matrices
-		// http://www.opengl.org/sdk/docs/man/xhtml/gluProject.xml
-		// vector4 t;
-		// t = view_matrix * aabb; // v3 * m(4x3)
-		// t = proj_matrix * t; // v4 * m(4x4)
-	    // p_win.x = win_sizex * (t.x / t.w + 1.0f) * 0.5f;
-	    // p_win.y = win_sizey * (t.y / t.w + 1.0f) * 0.5f;
-		// Grab Min(XY) and Max(XY)
-		return aabb;
 	}
 	
 	/**
