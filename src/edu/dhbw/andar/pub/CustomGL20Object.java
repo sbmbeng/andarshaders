@@ -41,8 +41,8 @@ public class CustomGL20Object extends ARGLES20Object {
 	 */
 	@Override
 	public final void drawGLES20() {
-		// There's still a translate call in here
-	    //gl.glTranslatef( 0.0f, 0.0f, 12.5f );
+		// Create a cubemap for this object from vertices
+		GenerateCubemap( box.vertArray() );
 		
 		// Feed in Verts
 		box.verts().position(0);

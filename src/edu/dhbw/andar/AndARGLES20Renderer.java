@@ -135,8 +135,7 @@ public class AndARGLES20Renderer extends AndARRenderer {
 
 		//register unchaught exception handler
 		Thread.currentThread().setUncaughtExceptionHandler(activity);
-		
-		// TODO: Make these work again
+
 		markerInfo.initGL(null);
 		if(customRenderer != null)
 			customRenderer.initGL(null);
@@ -193,8 +192,7 @@ public class AndARGLES20Renderer extends AndARRenderer {
 		//draw camera square
 		GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 		GraphicsUtil.checkGlError("glDrawArrays");
-
-		// TODO: Make these work again
+		
 		if(customRenderer != null)
 			customRenderer.setupEnv(null);
 		
@@ -248,8 +246,9 @@ public class AndARGLES20Renderer extends AndARRenderer {
 	 * @param n n*8 = number of triangles on front face
 	 * @param ssbb a screen space bounding box
 	 */
-	public void generateCubemap( int n, float[] ssbb ) {
+	public void generateCubemap( float[] ssbb ) {
 		// TODO: Write this method
+		int n = edu.dhbw.andar.Config.CUBEMAP_QUALITY;
 		// Correct SSBB dimensions
 		// Generate front face geometry
 		// Generate texture coordinates for front face
