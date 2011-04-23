@@ -96,5 +96,7 @@ public class SimpleBox {
 	
 	// Accessors
 	public FloatBuffer verts() { return box; }
+	public float[] vertArray() { return boxverts; }
 	public FloatBuffer normals() { return normals; }
+	public float[] normalArray() { return boxnormals; }
 }

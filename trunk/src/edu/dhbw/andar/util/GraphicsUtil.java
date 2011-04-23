@@ -127,8 +127,19 @@ public class GraphicsUtil {
 	 */
 	public static float[] calcAABB( float[] vertices )
 	{
-		// TODO: Find min(XYZ) and max(XYZ) vertices
-		return vertices;
+		float[] aabb = { Float.MAX_VALUE, Float.MAX_VALUE, Float.MAX_VALUE,
+				Float.MIN_VALUE, Float.MIN_VALUE, Float.MIN_VALUE };
+		int i = 0;
+		while( i < vertices.length )
+		{
+			if( vertices[i] < aabb[0] ) aabb[0] = vertices[i]; 
+			if( vertices[i] > aabb[3] ) aabb[3] = vertices[i]; i++;
+			if( vertices[i] < aabb[1] ) aabb[1] = vertices[i];
+			if( vertices[i] > aabb[4] ) aabb[4] = vertices[i]; i++;
+			if( vertices[i] < aabb[2] ) aabb[2] = vertices[i]; 
+			if( vertices[i] > aabb[5] ) aabb[5] = vertices[i]; i++;
+		}
+		return aabb;
 	}
 	
 	/**

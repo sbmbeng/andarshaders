@@ -6,6 +6,7 @@ import edu.dhbw.andar.util.GraphicsUtil;
 
 import android.opengl.GLES20;
 import android.opengl.Matrix;
+import android.util.Log;
 
 /**
  * This class defines an ARObject which is used with the GLES20 renderer.
@@ -83,15 +84,48 @@ public abstract class ARGLES20Object extends ARObject {
 	 * @return normalized screen space bounding box, [minx][miny][maxx][maxy]
 	 */
 	public float[] calcSSBB( float[] aabb ) {
-		// TODO: Calculate this shit. using the modelview and projection matrices
 		// http://www.opengl.org/sdk/docs/man/xhtml/gluProject.xml
-		// vector4 t;
-		// t = view_matrix * aabb; // v3 * m(4x3)
-		// t = proj_matrix * t; // v4 * m(4x4)
-	    // p_win.x = win_sizex * (t.x / t.w + 1.0f) * 0.5f;
-	    // p_win.y = win_sizey * (t.y / t.w + 1.0f) * 0.5f;
-		// Grab Min(XY) and Max(XY)
-		return aabb;
+		float[] t = { 0.0f, 0.0f, 0.0f, 1.0f };
+		float[] ssbb = { Float.MAX_VALUE, Float.MAX_VALUE, Float.MIN_VALUE, Float.MIN_VALUE };
+		for( int i = 0; i < 8; i++ )
+		{
+			// Test all points in the aabb
+			t[0] = ( ( i / 4 ) % 2 == 0 ) ? aabb[0] : aabb[3];
+			t[1] = ( ( i / 2 ) % 2 == 0 ) ? aabb[1] : aabb[4];
+			t[2] = ( i % 2 == 0 ) ? aabb[2] : aabb[5];
+			t[3] = 1.0f;
+			
+			// Project the point by the ModelView matrix then the Projection Matrix
+			Matrix.multiplyMV(t, 0, glMatrix, 0, t, 0);
+			Matrix.multiplyMV(t, 0, glCameraMatrix, 0, t, 0);
+			
+			// Save mins and maxs
+			float x = ( ( t[0] / t[3] ) + 1.0f ) * 0.5f;
+			float y = ( ( t[1] / t[3] ) + 1.0f ) * 0.5f;
+			if( x < ssbb[0] ) ssbb[0] = x;
+			if( x > ssbb[2] ) ssbb[2] = x;
+			if( y < ssbb[2] ) ssbb[1] = y;
+			if( y > ssbb[3] ) ssbb[3] = y;
+		}
+		
+		// Clamp SSBB from 0.0 to 1.0
+		if( ssbb[0] < 0.0f ) ssbb[0] = 0.0f; if( ssbb[0] > 1.0f ) ssbb[0] = 1.0f;
+		if( ssbb[1] < 0.0f ) ssbb[1] = 0.0f; if( ssbb[1] > 1.0f ) ssbb[1] = 1.0f;
+		if( ssbb[2] < 0.0f ) ssbb[2] = 0.0f; if( ssbb[2] > 1.0f ) ssbb[2] = 1.0f;
+		if( ssbb[3] < 0.0f ) ssbb[3] = 0.0f; if( ssbb[3] > 1.0f ) ssbb[3] = 1.0f;
+		return ssbb;
+	}
+
+	/**
+	 * Generates a cubemap for this object and puts it in graphics memory
+	 * @param vertices A float array of vertices: [x][y][z][x][y][z]...
+	 */
+	public void GenerateCubemap( float[] vertices ) {
+		float[] aabb = GraphicsUtil.calcAABB( vertices );
+		//Log.v("ARGLES20Object", "AABB: Min: ( " + aabb[0] + ", " + aabb[1] + ", " + aabb[2] + " ), Max: ( " + aabb[3] + ", " + aabb[4] + ", " + aabb[5] + " ) " );
+		float[] ssbb = calcSSBB( aabb );
+		//Log.v("ARGLES20Object", "SSBB: Min: ( " + ssbb[0] + ", " + ssbb[1] + " ), Max: ( " + ssbb[2] + ", " + ssbb[3] + ") " );
+		mRenderer.generateCubemap( ssbb );
 	}
 	
 	
