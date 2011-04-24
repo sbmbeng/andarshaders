@@ -1,18 +1,15 @@
-varying vec3 normal;
-varying vec3 position_eyespace;
-varying vec3 position_worldspace;
-
-// a shader for a black & white checkerboard
+uniform mat4 uMVPMatrix;
+uniform vec4 uColor;
+attribute vec4 aNormal;
+attribute vec4 aPosition;
+varying vec4 vNormal;
+varying vec4 vPosition;
+// a shader for wood
 
 void main(void) {
-
-  // the fragment shader requires both the world space position (to determine which
-  // black/white square we are in) & eyespace position (for lighting)
-  position_eyespace = vec3(gl_ModelViewMatrix * gl_Vertex);
-  position_worldspace = gl_Vertex.xyz;
-
   // pass along the normal 
-  normal = normalize(gl_NormalMatrix * gl_Normal);
-
-  gl_Position = gl_ModelViewProjectionMatrix * gl_Vertex;
+  float a = uColor.x;
+  vNormal = aNormal;
+  vPosition = aPosition;
+  gl_Position = uMVPMatrix * aPosition;
 }
