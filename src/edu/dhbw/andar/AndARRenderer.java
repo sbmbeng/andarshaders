@@ -89,8 +89,8 @@ public class AndARRenderer implements Renderer, PreviewFrameSink{
 	protected int textureSize = 256;
 	protected int previewFrameWidth = 256;
 	protected int previewFrameHeight = 256;
-	protected int screenWidth = 0;
-	protected int screenHeight = 0;
+	public int screenWidth = 0;
+	public int screenHeight = 0;
 	protected ARToolkit markerInfo;
 	protected float aspectRatio=1;
 	protected OpenGLRenderer customRenderer;
