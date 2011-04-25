@@ -25,6 +25,9 @@ public class CustomGL20Object extends ARGLES20Object {
 	private int maPositionHandle;
 	private int maNormalHandle;
 	private int muColor;
+	private int muCamera;
+	private int muDTex1;
+	private int muDTex2;
 	private static final int FLOAT_SIZE_BYTES = 4;
     private static final int VERTEX_NORMAL_DATA_STRIDE = 3 * FLOAT_SIZE_BYTES;
 
@@ -63,6 +66,17 @@ public class CustomGL20Object extends ARGLES20Object {
         // Set the color (green)
         GLES20.glUniform4f(muColor, 0.0f, 1.0f, 0.0f, 1.0f);
         
+        //Set the camera position
+        GLES20.glUniform4f(muCamera, 0.0f, 0.0f, 0.0f, 1.0f);
+        
+        //Set the camera position
+        GLES20.glUniform4f(muCamera, 0.0f, 0.0f, 0.0f, 1.0f);
+        
+        GLES20.glUniform1i(muDTex1, 0);
+        GLES20.glUniform1i(muDTex2, 1);
+        
+        depthDrawGLES20();
+        
         // Draw the cube faces
 	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 4, 4);
@@ -71,6 +85,62 @@ public class CustomGL20Object extends ARGLES20Object {
 	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 16, 4);
 	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 20, 4);
 	    GraphicsUtil.checkGlError("glDrawArrays");
+	}
+	public final void depthDrawGLES20() {
+		
+		int[] framebuffers = new int[1];
+		int[] renderbuffers = new int[1];
+		int[] textures = new int[2];
+		
+		GLES20.glDisable(GLES20.GL_CULL_FACE);
+		GLES20.glColorMask(false, false, false, false);
+		GLES20.glDepthFunc(GLES20.GL_GREATER);
+		
+		
+		GLES20.glGenFramebuffers(1, framebuffers, 0);
+		GLES20.glGenRenderbuffers(1, renderbuffers, 0);
+		GLES20.glGenTextures(2, textures, 0);
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+		
+		int fbuf = framebuffers[0];
+		int dbuf = renderbuffers[0];
+		int texbuf1 = textures[0];
+		int texbuf2 = textures[1];
+		
+		int h = mRenderer.screenHeight;
+		int w = mRenderer.screenWidth;
+		
+		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fbuf);
+		
+		GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_DEPTH_ATTACHMENT, GLES20.GL_TEXTURE_2D, texbuf1, 0);
+		
+        // Draw the cube faces
+	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 4, 4);
+	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 8, 4);
+	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 12, 4);
+	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 16, 4);
+	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 20, 4);
+	    GraphicsUtil.checkGlError("glDrawArrays");
+	    
+	    GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+	    GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_DEPTH_ATTACHMENT, GLES20.GL_TEXTURE_2D, texbuf2, 0);
+	    GLES20.glDepthFunc(GLES20.GL_LESS);
+	    
+	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 4, 4);
+	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 8, 4);
+	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 12, 4);
+	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 16, 4);
+	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 20, 4);
+	    GraphicsUtil.checkGlError("glDrawArrays");
+	    
+	    GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+	    
+	    GLES20.glColorMask(true,true,true,true);
+	    GLES20.glEnable(GLES20.GL_CULL_FACE);
+	    
+	    
 	}
 	
 	@Override
@@ -91,14 +161,30 @@ public class CustomGL20Object extends ARGLES20Object {
         if (muColor == -1) {
             throw new RuntimeException("Could not get uniform location for uColor");
         }
+        muCamera = GLES20.glGetUniformLocation(mProgram, "uCamera");
+        GraphicsUtil.checkGlError("glGetUniformLocation uCamera");
+        if (muCamera == -1) {
+            throw new RuntimeException("Could not get uniform location for uCamera");
+        }
+        muCamera = GLES20.glGetUniformLocation(mProgram, "uDTex1");
+        GraphicsUtil.checkGlError("glGetUniformLocation uCamera");
+        if (muCamera == -1) {
+            throw new RuntimeException("Could not get uniform location for uCamera");
+        }
+        muCamera = GLES20.glGetUniformLocation(mProgram, "uDTex2");
+        GraphicsUtil.checkGlError("glGetUniformLocation uCamera");
+        if (muCamera == -1) {
+            throw new RuntimeException("Could not get uniform location for uCamera");
+        }
+        
 	}
 
 	/**
 	 * Set the shader program files for this object
 	 */
 	@Override
-	public String vertexProgramPath() { return "shaders/simplecolor.vs"; }
+	public String vertexProgramPath() { return "shaders/refract.vs"; }
 
 	@Override
-	public String fragmentProgramPath() { return "shaders/simplecolor.fs"; }
+	public String fragmentProgramPath() { return "shaders/refract.fs"; }
 }
