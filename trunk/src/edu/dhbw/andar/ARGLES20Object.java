@@ -126,6 +126,7 @@ public abstract class ARGLES20Object extends ARObject {
 		float[] ssbb = calcSSBB( aabb );
 		//Log.v("ARGLES20Object", "SSBB: Min: ( " + ssbb[0] + ", " + ssbb[1] + " ), Max: ( " + ssbb[2] + ", " + ssbb[3] + ") " );
 		mRenderer.generateCubemap( ssbb );
+		GLES20.glUseProgram( mProgram );
 	}
 	
 	
