@@ -84,7 +84,6 @@ public class CustomGL20Object extends ARGLES20Object {
         GLES20.glUniform4f(muCamera, 0.0f, 0.0f, 0.0f, 1.0f);
         
         GLES20.glUniform1i(muDTex1, 0);
-       
         GLES20.glUniform1i(muDTex2, 1);
                
         // Draw the cube faces
