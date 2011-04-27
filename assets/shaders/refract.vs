@@ -14,5 +14,6 @@ void main(void) {
   float a = uColor.x;
   vNormal = aNormal;
   vPosition = aPosition;
-  gl_Position = vSPosition = uMVPMatrix * aPosition;
+  vSPosition = uMVPMatrix * aPosition;
+  gl_Position = uMVPMatrix * aPosition;
 }
