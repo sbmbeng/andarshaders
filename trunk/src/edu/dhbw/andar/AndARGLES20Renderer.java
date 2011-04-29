@@ -59,10 +59,6 @@ import android.util.Log;
 public class AndARGLES20Renderer extends AndARRenderer {
 	private final String TAG = "AndARGLES20Renderer";
 	
-	private static final int FLOAT_SIZE_BYTES = 4;
-    private static final int TRIANGLE_VERTICES_DATA_STRIDE_BYTES = 3 * FLOAT_SIZE_BYTES;
-    private static final int TRIANGLE_VERTICES_UV_STRIDE_BYTES = 2 * FLOAT_SIZE_BYTES;
-	
 	// GLES 2.0 doesn't do matrix math for us for free.
     private float[] mMVPMatrix = new float[16]; // Projection*ModelView Matrix
     private float[] mProjMatrix = new float[16]; // Projection Matrix
@@ -73,7 +69,9 @@ public class AndARGLES20Renderer extends AndARRenderer {
 	private int muMVPMatrixHandle;
 	private int maPositionHandle;
 	private int maTextureHandle;
-	private int mFrameBuffer;
+	private int[] mFrameBuffers;
+	private int mCubeMapTexture;
+	private DynamicCubemap mDC;
 	
 	/**
 	 * mode, being either GLES20.GL_RGB or GLES20.GL_LUMINANCE
@@ -127,15 +125,44 @@ public class AndARGLES20Renderer extends AndARRenderer {
         // Set the GL clear color here
         GLES20.glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
 		
-        // Generate a Texture object for our frame
+		// Generate Cubemap Textures
+		int[] cubemaptextures = new int[1];
+		GLES20.glGenTextures(1, cubemaptextures, 0 );
+		mCubeMapTexture = cubemaptextures[0];
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, mCubeMapTexture);
+		GraphicsUtil.checkGlError("glBindTexture");
+		for( int i = 0; i < 6; i++ ) {		
+			initializeTexture( edu.dhbw.andar.Config.CUBEMAP_SIZE, GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i );
+		}
+		GLES20.glTexParameterf(GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
+		GLES20.glTexParameterf(GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
+		GLES20.glTexParameteri(GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_MIN_FILTER, GLES20.GL_NEAREST);
+		GLES20.glTexParameteri(GLES20.GL_TEXTURE_CUBE_MAP, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_NEAREST);
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, 0);
+		
+		// Create a set of FrameBuffers for the cubemap
+		mFrameBuffers = new int[6];
+		GLES20.glGenFramebuffers(6, mFrameBuffers, 0);
+		for( int i = 0; i < 6; i++ ) {
+			GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFrameBuffers[i]);
+			GLES20.glFramebufferTexture2D( GLES20.GL_FRAMEBUFFER, GLES20.GL_COLOR_ATTACHMENT0,
+	        		GLES20.GL_TEXTURE_CUBE_MAP_POSITIVE_X + i, mCubeMapTexture, 0 );
+			GLES20.glCheckFramebufferStatus( GLES20.GL_FRAMEBUFFER );
+		}
+		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+		
+		// Set up the cubemap structure
+		mDC = new DynamicCubemap();
+		
+		// Generate a Texture object for our frame
 		int[] textureNames = new int[1];
 		GLES20.glGenTextures(1, textureNames, 0);
 		textureName = textureNames[0];
 		textureBuffer = makeFloatBuffer(textureCoords);
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureName);
-
+		
 		//register unchaught exception handler
-		Thread.currentThread().setUncaughtExceptionHandler(activity);
+		Thread.currentThread().setUncaughtExceptionHandler(activity); 
 
 		markerInfo.initGL(null);
 		if(customRenderer != null)
@@ -143,11 +170,6 @@ public class AndARGLES20Renderer extends AndARRenderer {
 		
 		// Tell GL what to look at
 		Matrix.setLookAtM(mVMatrix, 0, 0, 0, 0, 0.0f, 0.0f, 5.0f, 0f, 1.0f, 0.0f);
-		
-		// Create a FrameBuffer for possible later use
-		int[] framebuffers = new int[1];
-		GLES20.glGenFramebuffers(1, framebuffers, 0);
-		mFrameBuffer = framebuffers[0];
 	}
 
 	/* (non-Javadoc)
@@ -165,7 +187,8 @@ public class AndARGLES20Renderer extends AndARRenderer {
 		if (frameEnqueued) {
 			frameLock.lock();
 			if(!isTextureInitialized) {
-				initializeTexture();
+				initializeTexture( textureSize, GLES20.GL_TEXTURE_2D );
+				isTextureInitialized = true;
 			} else {
 				GLES20.glTexSubImage2D(GLES20.GL_TEXTURE_2D, 0, 0, 0, previewFrameWidth, previewFrameHeight,
 						mode, GLES20.GL_UNSIGNED_BYTE, frameData);
@@ -180,13 +203,13 @@ public class AndARGLES20Renderer extends AndARRenderer {
 		//draw camera preview frame:
 		squareBuffer.position(0);
         GLES20.glVertexAttribPointer(maPositionHandle, 3, GLES20.GL_FLOAT, false,
-                TRIANGLE_VERTICES_DATA_STRIDE_BYTES, squareBuffer);
+                GraphicsUtil.TRIANGLE_VERTICES_DATA_STRIDE_BYTES, squareBuffer);
         GraphicsUtil.checkGlError("glVertexAttribPointer maPosition");
         GLES20.glEnableVertexAttribArray(maPositionHandle);
         GraphicsUtil.checkGlError("glEnableVertexAttribArray maPositionHandle");
         textureBuffer.position(0);
         GLES20.glVertexAttribPointer(maTextureHandle, 2, GLES20.GL_FLOAT, false,
-        		TRIANGLE_VERTICES_UV_STRIDE_BYTES, textureBuffer);
+        		GraphicsUtil.TRIANGLE_VERTICES_UV_STRIDE_BYTES, textureBuffer);
         GraphicsUtil.checkGlError("glVertexAttribPointer maTextureHandle");
         GLES20.glEnableVertexAttribArray(maTextureHandle);
         GraphicsUtil.checkGlError("glEnableVertexAttribArray maTextureHandle");
@@ -212,6 +235,9 @@ public class AndARGLES20Renderer extends AndARRenderer {
 			takeScreenshot = false;
 			captureScreenshot(glUnused);		
 		}
+		
+		GLES20.glDisableVertexAttribArray(maPositionHandle);
+		GLES20.glDisableVertexAttribArray(maTextureHandle);
 	}
 
 	/* 
@@ -252,276 +278,67 @@ public class AndARGLES20Renderer extends AndARRenderer {
 	 * @param ssbb a screen space bounding box
 	 */
 	public void generateCubemap( float[] ssbb ) {
-		// Cubemap parameters
-		int n = edu.dhbw.andar.Config.CUBEMAP_QUALITY;
-		float percentEnlarge = 0.05f;
-		float percentBorder = 0.15f;
+		// Grab the current viewport and program for restoration later
+		int[] OldViewport = new int[4], OldProgram = new int[1];
+        GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, OldViewport, 0);
+        GLES20.glGetIntegerv(GLES20.GL_CURRENT_PROGRAM, OldProgram, 0);
 		
-		// Render to Texture ModelView and Projection matrices
-	    float[] projmatrix = new float[16]; // Projection Matrix
+		// Correct SSBB dimensions and generate new UVs based on this SSBB
+	    float widthcorrection = (float) previewFrameWidth / (float) textureSize;
+        float heightcorrection = (float) previewFrameHeight / (float) textureSize;
+		mDC.UpdateUVs( DynamicCubemap.CorrectSSBB( ssbb ), widthcorrection, heightcorrection ); 
 		
-		// Correct SSBB dimensions
-		float[] correctSSBB = { 0.0f, 0.0f, 0.0f, 0.0f };
-		float width = ssbb[2] - ssbb[0];
-		float height = ssbb[3] - ssbb[1];
-		float cx = ssbb[0] + ( width / 2.0f );
-		float cy = ssbb[1] + ( height / 2.0f );
-		width *= ( 1.0f + percentEnlarge );
-		height *= ( 1.0f + percentEnlarge );
-		correctSSBB[0] = ( cx - ( width / 2.0f ) < percentBorder ) ? percentBorder : cx - ( width / 2.0f );
-		correctSSBB[1] = ( cy - ( height / 2.0f ) < percentBorder ) ? percentBorder : cy - ( height / 2.0f );
-		correctSSBB[2] = ( cx + ( width / 2.0f ) > 1.0f - percentBorder ) ? 1.0f - percentBorder : cx + ( width / 2.0f );
-		correctSSBB[3] = ( cy + ( height / 2.0f ) > 1.0f - percentBorder ) ? 1.0f - percentBorder : cy + ( height / 2.0f );
-		
-		// Set up GL for RTT rendering
-		//GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+		// Set up the program used to render to the texture
 		GLES20.glUseProgram(mProgram);
 		GraphicsUtil.checkGlError("glUseProgram");
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureName);
+		float[] projmatrix = new float[16]; // Projection Matrix
 		Matrix.orthoM(projmatrix, 0, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
 		Matrix.multiplyMM(mMVPMatrix, 0, projmatrix, 0, mVMatrix, 0);
         GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, mMVPMatrix, 0);
-        GLES20.glUniform1i(mSamplerLoc, 0);
-        // Commented for debug purposes
-        //GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFrameBuffer); 
+        GLES20.glUniform1i(mSamplerLoc, 0); 
         
-        // Generate front face geometry and texture coords...  Here we go...
-        float[] frontFaceVerts = new float[ n * 8 * 3 * 3 ]; int vidx = 0;
-        float[] frontFaceUVs = new float[ n * 8 * 3 * 2 ]; int tidx = 0;
-        float widthcorrection = (float) previewFrameWidth / (float) textureSize;
-        float heightcorrection = (float) previewFrameHeight / (float) textureSize;
+        // Render to the front face of the cubemap
+        /* Uncomment this block to let all hell break loose.
+        GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, 0); // Ensure we aren't rendering to the same texture we're using
+        GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFrameBuffers[5]);
+        GLES20.glViewport( 0, 0, edu.dhbw.andar.Config.CUBEMAP_SIZE, edu.dhbw.andar.Config.CUBEMAP_SIZE);
+        GLES20.glClear( GLES20.GL_COLOR_BUFFER_BIT );
+		mDC.DrawFace( 5, maPositionHandle, maTextureHandle );
         
-        float vw = 1.0f / ( float ) n;
-        float ow = cx / ( float )( n + 1 );
-        float iw = ( ( correctSSBB[0] / 2.0f ) + ( cx - correctSSBB[0] ) ) / ( float ) n;
-        float ac = correctSSBB[3] + ( ( 1.0f - correctSSBB[3] ) / 2.0f );
-        float is = correctSSBB[0] / 2.0f;
-        
-        // Zone 1
-        for( int i = 0; i < n; i++ ) {
-        	frontFaceVerts[ vidx++ ] = ( vw * i ) - 1.0f;
-        	frontFaceVerts[ vidx++ ] = 1.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ( is + ( iw * i ) ) * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ac * heightcorrection;
-        	
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ( ow * ( i + 1 ) ) * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = 1.0f * heightcorrection;
-        	
-        	frontFaceVerts[ vidx++ ] = ( vw * ( i + 1 ) ) - 1.0f;
-        	frontFaceVerts[ vidx++ ] = 1.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ( is + ( iw * ( i + 1) ) ) * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ac * heightcorrection;
-        }
-        
-        // Zone 3
-        ac = correctSSBB[1] / 2.0f;
-        for( int i = 0; i < n; i++ ) {
-        	frontFaceVerts[ vidx++ ] = ( vw * i ) - 1.0f;
-        	frontFaceVerts[ vidx++ ] = -1.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ( is + ( iw * i ) ) * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ac * heightcorrection;
-        	
-        	frontFaceVerts[ vidx++ ] = ( vw * ( i + 1 ) ) - 1.0f;
-        	frontFaceVerts[ vidx++ ] = -1.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ( is + ( iw * ( i + 1) ) ) * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ac * heightcorrection;
-        	
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ( ow * ( i + 1 ) ) * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = 0.0f * heightcorrection;
-        }
-        
-        // Zone 2
-        ow = ( 1.0f - cx ) / ( float ) ( n + 1 ); 
-        iw = ( 1.0f - ( 1.0f - cx ) - ( ( 1.0f - correctSSBB[2] ) / 2.0f ) ) / ( float ) n;
-        ac = correctSSBB[3] + ( ( 1.0f - correctSSBB[3] ) / 2.0f );
-        for( int i = 0; i < n; i++ ) {
-        	frontFaceVerts[ vidx++ ] = ( vw * i );
-        	frontFaceVerts[ vidx++ ] = 1.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ( cx + ( iw * i ) ) * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ac * heightcorrection;
-        	
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ( cx + ( ow * ( i + 1 ) ) ) * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = 1.0f * heightcorrection;
-        	
-        	frontFaceVerts[ vidx++ ] = ( vw * ( i + 1 ) );
-        	frontFaceVerts[ vidx++ ] = 1.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ( cx + ( iw * ( i + 1 ) ) ) * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ac * heightcorrection;
-        }
-        
-        // Zone 4
-        ac = correctSSBB[1] / 2.0f;
-        for( int i = 0; i < n; i++ ) {
-        	frontFaceVerts[ vidx++ ] = ( vw * i );
-        	frontFaceVerts[ vidx++ ] = -1.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ( cx + ( iw * i ) ) * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ac * heightcorrection;
-        	
-        	frontFaceVerts[ vidx++ ] = ( vw * ( i + 1 ) );
-        	frontFaceVerts[ vidx++ ] = -1.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ( cx + ( iw * ( i + 1) ) ) * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ac * heightcorrection;
-        	
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ( cx + ( ow * ( i + 1 ) ) ) * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = 0.0f * heightcorrection;
-        }
-        
-        // Zone 6
-        ow = cy / ( float )( n + 1 );
-        iw = ( ( correctSSBB[1] / 2.0f ) + ( cy - correctSSBB[1] ) ) / ( float ) n;
-        ac = correctSSBB[0] / 2.0f;
-        is = correctSSBB[1] / 2.0f;
-        for( int i = 0; i < n; i++ ) {
-        	frontFaceVerts[ vidx++ ] = -1.0f;
-        	frontFaceVerts[ vidx++ ] = ( vw * i ) - 1.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ac * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ( is + ( iw * i ) ) * heightcorrection;
-        	
-        	frontFaceVerts[ vidx++ ] = -1.0f;
-        	frontFaceVerts[ vidx++ ] = ( vw * ( i + 1 ) ) - 1.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ac * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ( is + ( iw * ( i + 1) ) ) * heightcorrection;
-        	
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = 0.0f * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ( ow * ( i + 1 ) ) * heightcorrection;
-        }
-        
-        // Zone 8
-        ac = correctSSBB[2] + ( ( 1.0f - correctSSBB[2] ) / 2.0f );
-        for( int i = 0; i < n; i++ ) {
-        	frontFaceVerts[ vidx++ ] = 1.0f;
-        	frontFaceVerts[ vidx++ ] = ( vw * i ) - 1.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ac * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ( is + ( iw * i ) ) * heightcorrection;
-        	
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = 1.0f * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ( ow * ( i + 1 ) ) * heightcorrection;
-        	
-        	frontFaceVerts[ vidx++ ] = 1.0f;
-        	frontFaceVerts[ vidx++ ] = ( vw * ( i + 1 ) ) - 1.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ac * widthcorrection;
-        	frontFaceUVs[ tidx++ ] =  ( is + ( iw * ( i + 1) ) ) * heightcorrection;
-        }
-        
-        // Zone 5
-        ow = ( 1.0f - cy ) / ( float ) ( n + 1 ); 
-        iw = ( 1.0f - ( 1.0f - cy ) - ( ( 1.0f - correctSSBB[3] ) / 2.0f ) ) / ( float ) n;
-        ac = correctSSBB[0] / 2.0f;
-        for( int i = 0; i < n; i++ ) {
-        	frontFaceVerts[ vidx++ ] = -1.0f;
-        	frontFaceVerts[ vidx++ ] = ( vw * i );
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ac * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ( cy + ( iw * i ) ) * heightcorrection;
-        	
-        	frontFaceVerts[ vidx++ ] = -1.0f;
-        	frontFaceVerts[ vidx++ ] = ( vw * ( i + 1 ) );
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ac * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ( cy + ( iw * ( i + 1 ) ) ) * heightcorrection;
-        	
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = 0.0f * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ( cy + ( ow * ( i + 1 ) ) ) * heightcorrection;
-        }
-        
-        // Zone 7
-        ac = correctSSBB[2] + ( ( 1.0f - correctSSBB[2] ) / 2.0f );
-        for( int i = 0; i < n; i++ ) {
-        	frontFaceVerts[ vidx++ ] = 1.0f;
-        	frontFaceVerts[ vidx++ ] = ( vw * i );
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ac * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ( cy + ( iw * i ) ) * heightcorrection;
-        	
-        	frontFaceVerts[ vidx++ ] = 1.0f;
-        	frontFaceVerts[ vidx++ ] = ( vw * ( i + 1 ) );
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = ac * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ( cy + ( iw * ( i + 1 ) ) ) * heightcorrection;
-        	
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceVerts[ vidx++ ] = 0.0f;
-        	frontFaceUVs[ tidx++ ] = 1.0f * widthcorrection;
-        	frontFaceUVs[ tidx++ ] = ( cy + ( ow * ( i + 1 ) ) ) * heightcorrection;
-        }
-        
-		// Render front face into a cubemap texture via a framebuffer
-        FloatBuffer vfacebuffer = makeFloatBuffer( frontFaceVerts );
-        vfacebuffer.position(0);
-        GLES20.glVertexAttribPointer(maPositionHandle, 3, GLES20.GL_FLOAT, false,
-                TRIANGLE_VERTICES_DATA_STRIDE_BYTES, vfacebuffer);
-        GraphicsUtil.checkGlError("glVertexAttribPointer maPosition");
-        GLES20.glEnableVertexAttribArray(maPositionHandle);
-        GraphicsUtil.checkGlError("glEnableVertexAttribArray maPositionHandle");
-        
-        FloatBuffer tfacebuffer = makeFloatBuffer( frontFaceUVs );
-        tfacebuffer.position(0);
-        GLES20.glVertexAttribPointer(maTextureHandle, 2, GLES20.GL_FLOAT, false,
-        		TRIANGLE_VERTICES_UV_STRIDE_BYTES, tfacebuffer);
-        GraphicsUtil.checkGlError("glVertexAttribPointer maTextureHandle");
-        GLES20.glEnableVertexAttribArray(maTextureHandle);
-        GraphicsUtil.checkGlError("glEnableVertexAttribArray maTextureHandle");
-        
-		//GLES20.glDrawArrays(GLES20.GL_TRIANGLES, 0, 8 * n * 3 );
-		GraphicsUtil.checkGlError("glDrawArrays");
-        
-		// Create a new face for rendering remaining textures
-		// Generate remaining face texture coordinates
 		// Render remaining faces to cubemap textures via framebuffers
+		for( int i = 0; i < 5; i++ ) {
+			GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFrameBuffers[i]);
+			GLES20.glClear( GLES20.GL_COLOR_BUFFER_BIT );
+			mDC.DrawFace( i, maPositionHandle, maTextureHandle );
+		}
+		
+		// Unbind the framebuffer, we no longer need to render to textures.
+		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
+		*/
+		
+		// Bind the old program and viewport
+		GLES20.glUseProgram( OldProgram[0] );
+		GLES20.glViewport( OldViewport[0], OldViewport[1], OldViewport[2], OldViewport[3] );
 	}
 	
-	private void initializeTexture() {
+	private void initializeTexture( int size, int target ) {
 		byte[] frame;
 		switch(mode) {
 		default:
 			mode = GLES20.GL_RGB;
 		case GLES20.GL_RGB:
-			frame = new byte[textureSize*textureSize*3];
+			frame = new byte[size*size*3];
 			break;
 		case GLES20.GL_LUMINANCE:
-			frame = new byte[textureSize*textureSize];
+			frame = new byte[size*size];
 			break;
 		}
-		GLES20.glTexImage2D(GLES20.GL_TEXTURE_2D, 0, mode, textureSize,
-				textureSize, 0, mode, GLES20.GL_UNSIGNED_BYTE ,
+		GLES20.glTexImage2D(target, 0, mode, size,
+				size, 0, mode, GLES20.GL_UNSIGNED_BYTE ,
 				ByteBuffer.wrap(frame));
-		GraphicsUtil.checkGlError("glTexImage2D");
-		isTextureInitialized = true;		
+		GraphicsUtil.checkGlError("glTexImage2D");		
 	}
 	
 	/**

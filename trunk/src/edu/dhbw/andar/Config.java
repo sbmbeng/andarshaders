@@ -27,5 +27,6 @@ public class Config {
 	public final static boolean FORCE_GL10 = false;
 	public final static boolean DEBUG = false;
 	
-	public final static int CUBEMAP_QUALITY = 8;
+	public final static int CUBEMAP_QUALITY = 16;
+	public final static int CUBEMAP_SIZE = 128;
 }

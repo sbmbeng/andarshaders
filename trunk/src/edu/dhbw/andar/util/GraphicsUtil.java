@@ -19,6 +19,9 @@ public class GraphicsUtil {
 	//the correct aspect ratio available
 	//so we trade the correct aspect ratio for faster rendering
 	private final static double epsilon = 0.17;
+	public static final int FLOAT_SIZE_BYTES = 4;
+    public static final int TRIANGLE_VERTICES_DATA_STRIDE_BYTES = 3 * FLOAT_SIZE_BYTES;
+    public static final int TRIANGLE_VERTICES_UV_STRIDE_BYTES = 2 * FLOAT_SIZE_BYTES;
 	
 	/**
 	 * Make a direct NIO FloatBuffer from an array of floats
@@ -232,5 +235,24 @@ public class GraphicsUtil {
             throw new RuntimeException(op + ": glError " + error);
         }
     }
+	
+	public static void checkFrameBufferStatus() {
+		int error = GLES20.glCheckFramebufferStatus( GLES20.GL_FRAMEBUFFER );
+		if( error != GLES20.GL_FRAMEBUFFER_COMPLETE ) {
+			Log.v("GraphicsUtil", "Framebuffer error!");
+			switch( error ) {
+			case GLES20.GL_FRAMEBUFFER_INCOMPLETE_ATTACHMENT:
+				Log.v("GraphicsUtil", "Framebuffer attachment points are not complete"); break;
+			case GLES20.GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT:
+				Log.v("GraphicsUtil", "No valid attachments in the framebuffer"); break;
+			case GLES20.GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS:
+				Log.v("GraphicsUtil", "Attachments do not have the same width and height"); break;
+			case GLES20.GL_FRAMEBUFFER_UNSUPPORTED:
+				Log.v("GraphicsUtil", "The combination of rendering formats is not supported by this implementation"); break;
+			default:
+				Log.v("GraphicsUtil", "Something REALLY bad happened...");
+			}
+		}
+	}
 	
 }
