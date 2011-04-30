@@ -129,6 +129,7 @@ public class AndARGLES20Renderer extends AndARRenderer {
 		int[] cubemaptextures = new int[1];
 		GLES20.glGenTextures(1, cubemaptextures, 0 );
 		mCubeMapTexture = cubemaptextures[0];
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, mCubeMapTexture);
 		GraphicsUtil.checkGlError("glBindTexture");
 		for( int i = 0; i < 6; i++ ) {		
@@ -159,7 +160,6 @@ public class AndARGLES20Renderer extends AndARRenderer {
 		GLES20.glGenTextures(1, textureNames, 0);
 		textureName = textureNames[0];
 		textureBuffer = makeFloatBuffer(textureCoords);
-		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureName);
 		
 		//register unchaught exception handler
 		Thread.currentThread().setUncaughtExceptionHandler(activity); 
@@ -222,6 +222,9 @@ public class AndARGLES20Renderer extends AndARRenderer {
 		GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 		GraphicsUtil.checkGlError("glDrawArrays");
 		
+		GLES20.glDisableVertexAttribArray(maPositionHandle);
+		GLES20.glDisableVertexAttribArray(maTextureHandle);
+		
 		if(customRenderer != null)
 			customRenderer.setupEnv(null);
 		
@@ -235,9 +238,6 @@ public class AndARGLES20Renderer extends AndARRenderer {
 			takeScreenshot = false;
 			captureScreenshot(glUnused);		
 		}
-		
-		GLES20.glDisableVertexAttribArray(maPositionHandle);
-		GLES20.glDisableVertexAttribArray(maTextureHandle);
 	}
 
 	/* 
@@ -297,15 +297,17 @@ public class AndARGLES20Renderer extends AndARRenderer {
 		Matrix.orthoM(projmatrix, 0, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
 		Matrix.multiplyMM(mMVPMatrix, 0, projmatrix, 0, mVMatrix, 0);
         GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, mMVPMatrix, 0);
-        GLES20.glUniform1i(mSamplerLoc, 0); 
+        GLES20.glUniform1i(mSamplerLoc, 0); // Use the camera texture (bound in unit zero)
         
         // Render to the front face of the cubemap
-        /* Uncomment this block to let all hell break loose.
+        /* This code causes memory problems for whatever reason.
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, 0); // Ensure we aren't rendering to the same texture we're using
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFrameBuffers[5]);
         GLES20.glViewport( 0, 0, edu.dhbw.andar.Config.CUBEMAP_SIZE, edu.dhbw.andar.Config.CUBEMAP_SIZE);
         GLES20.glClear( GLES20.GL_COLOR_BUFFER_BIT );
 		mDC.DrawFace( 5, maPositionHandle, maTextureHandle );
+		Log.v("AndARGLES20Renderer", "Rendering to Texture!");
         
 		// Render remaining faces to cubemap textures via framebuffers
 		for( int i = 0; i < 5; i++ ) {
@@ -317,6 +319,9 @@ public class AndARGLES20Renderer extends AndARRenderer {
 		// Unbind the framebuffer, we no longer need to render to textures.
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
 		*/
+		
+		// Ensure the newly generated cubemap is bound to the correct texture unit
+		GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, mCubeMapTexture);
 		
 		// Bind the old program and viewport
 		GLES20.glUseProgram( OldProgram[0] );

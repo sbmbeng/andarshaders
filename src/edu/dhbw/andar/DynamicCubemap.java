@@ -389,8 +389,6 @@ public class DynamicCubemap {
 		GLES20.glEnableVertexAttribArray(positionhandle);
 		GraphicsUtil.checkGlError("glEnableVertexAttribArray maPositionHandle");
         
-		mFrontFaceTBuffer.put( mFrontFaceUVs );
-		mFrontFaceTBuffer.position(0);
 		GLES20.glVertexAttribPointer(texturehandle, 2, GLES20.GL_FLOAT, false,
         		GraphicsUtil.TRIANGLE_VERTICES_UV_STRIDE_BYTES, tbuffer);
 		GraphicsUtil.checkGlError("glVertexAttribPointer maTextureHandle");

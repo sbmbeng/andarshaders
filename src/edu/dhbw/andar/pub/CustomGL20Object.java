@@ -59,7 +59,7 @@ public class CustomGL20Object extends ARGLES20Object {
 		// Feed in Verts
 		box.verts().position(0);
 		box.normals().position(0);
-		depthDrawGLES20();
+		//depthDrawGLES20();
 		GLES20.glVertexAttribPointer(maPositionHandle, 3, GLES20.GL_FLOAT, false,
                 VERTEX_NORMAL_DATA_STRIDE, box.verts());
         GraphicsUtil.checkGlError("glVertexAttribPointer maPosition");
@@ -94,6 +94,9 @@ public class CustomGL20Object extends ARGLES20Object {
 	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 16, 4);
 	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 20, 4);
 	    GraphicsUtil.checkGlError("glDrawArrays");
+	    
+	    GLES20.glDisableVertexAttribArray(maPositionHandle);
+	    GLES20.glDisableVertexAttribArray(maNormalHandle);
 	}
 	public final void depthDrawGLES20() {
 		
