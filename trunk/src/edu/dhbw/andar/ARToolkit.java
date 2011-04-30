@@ -238,6 +238,7 @@ public class ARToolkit {
 	 */
 	public final void draw(GL10 gl) {
 		if(initialized) {
+			Log.v("ARToolkit", "Drawing " + arobjects.size() + " objects...");
 			if(Config.DEBUG)
 				Log.i("MarkerInfo", "going to draw opengl stuff now");
 			for (ARObject obj : arobjects) {

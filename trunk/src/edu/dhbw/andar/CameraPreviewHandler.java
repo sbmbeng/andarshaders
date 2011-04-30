@@ -139,6 +139,7 @@ public class CameraPreviewHandler implements PreviewCallback {
 	 */
 	protected void init(Camera camera)  {
 		Parameters camParams = camera.getParameters();
+        
 		//check if the pixel format is supported
 		if (camParams.getPreviewFormat() == PixelFormat.YCbCr_420_SP)  {
 			setMode(MODE_RGB);
@@ -155,9 +156,15 @@ public class CameraPreviewHandler implements PreviewCallback {
 		previewFrameWidth = previewSize.width;
 		previewFrameHeight = previewSize.height;
 		textureSize = GenericFunctions.nextPowerOfTwo(Math.max(previewFrameWidth, previewFrameHeight));
-		//frame = new byte[textureSize*textureSize*3];
 		bwSize = previewFrameWidth * previewFrameHeight;
-		frame = new byte[bwSize*3];		
+		frame = new byte[bwSize*3];	
+		
+		// Allocate space for reuse of image buffers
+		PixelFormat p = new PixelFormat();
+        PixelFormat.getPixelFormatInfo(camParams.getPreviewFormat(),p);
+        int bufSize = (bwSize*p.bitsPerPixel)/8;
+        byte[] buffer = new byte[bufSize];
+        camera.addCallbackBuffer(buffer);                            
 		
 		frameBuffer = GraphicsUtil.makeByteBuffer(frame.length);
 		frameSink.setPreviewFrameSize(textureSize, previewFrameWidth, previewFrameHeight);
@@ -196,6 +203,7 @@ public class CameraPreviewHandler implements PreviewCallback {
 			//camera.setPreviewCallback(null);
 			convWorker.nextFrame(data);
 			markerInfo.detectMarkers(data);
+			camera.addCallbackBuffer(data);
 	}
 	
 	
@@ -260,6 +268,7 @@ public class CameraPreviewHandler implements PreviewCallback {
 							Log.d("ConversionWorker","handing frame over to sink");
 						frameSink.getFrameLock().lock();
 						frameBuffer.position(0);
+						frameBuffer.clear();
 						frameBuffer.put(frame);
 						frameBuffer.position(0);
 						frameSink.setNextFrame(frameBuffer);
@@ -273,6 +282,7 @@ public class CameraPreviewHandler implements PreviewCallback {
 						//frame = curFrame;//WILL CAUSE PROBLEMS, WHEN SWITCHING BACK TO RGB	
 						frameSink.getFrameLock().lock();
 						frameBuffer.position(0);
+						frameBuffer.clear();
 						frameBuffer.put(curFrame,0,bwSize);
 						frameBuffer.position(0);
 						frameSink.setNextFrame(frameBuffer);

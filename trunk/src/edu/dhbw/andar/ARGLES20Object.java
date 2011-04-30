@@ -38,6 +38,7 @@ public abstract class ARGLES20Object extends ARObject {
 			init(glUnused);
 			initialized = true;
 		}
+		
 		// Ensure we're using the program we need
 		GLES20.glUseProgram( mProgram );
 		
