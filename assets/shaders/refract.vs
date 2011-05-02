@@ -1,5 +1,4 @@
 uniform mat4 uMVPMatrix;
-uniform vec4 uColor;
 uniform vec4 uCamera;
 attribute vec4 aNormal;
 attribute vec4 aPosition;
@@ -12,7 +11,6 @@ uniform vec2 uViewport;
 
 void main(void) {
   // pass along the normal 
-  float a = uColor.x;
   vNormal = aNormal;
   vPosition = aPosition;
   vSPosition = uMVPMatrix * aPosition;

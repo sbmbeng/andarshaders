@@ -1,5 +1,7 @@
 package edu.dhbw.andar.pub;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 
@@ -10,12 +12,14 @@ import android.opengl.GLES20;
 import android.opengl.GLU;
 import android.opengl.GLUtils;
 import android.opengl.Matrix;
+import android.util.Log;
 
 import edu.dhbw.andar.ARGLES20Object;
 import edu.dhbw.andar.ARObject;
 import edu.dhbw.andar.AndARGLES20Renderer;
 import edu.dhbw.andar.AndARRenderer;
 import edu.dhbw.andar.util.GraphicsUtil;
+import edu.dhbw.andar.util.IO;
 
 /**
  * An example of an AR object being drawn on a marker.
@@ -23,6 +27,8 @@ import edu.dhbw.andar.util.GraphicsUtil;
  *
  */
 public class CustomGL20Object extends ARGLES20Object {
+	
+	private int mProgram2;
 	
 	private int maPositionHandle;
 	private int maNormalHandle;
@@ -54,7 +60,7 @@ public class CustomGL20Object extends ARGLES20Object {
 	 * Everything drawn here will be drawn directly onto the marker,
 	 * as the corresponding translation matrix will already be applied.
 	 */
-	public final void drawSetup(){
+	public final void firstSetup(){
 		// Create a cubemap for this object from vertices
 		GenerateCubemap( box.vertArray() );
 		
@@ -74,16 +80,17 @@ public class CustomGL20Object extends ARGLES20Object {
         GLES20.glEnableVertexAttribArray(maNormalHandle);
         GraphicsUtil.checkGlError("glEnableVertexAttribArray maNormalHandle");
        
+        GLES20.glUniform4f(muColor, 0.0f, 1.0f, 0.0f, 1.0f);
         
+        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+	}
+	public final void secondSetup(){
         int w = mRenderer.screenWidth;
 		int h = mRenderer.screenHeight;
 		GLES20.glUniform2f(muViewport, w, h);
-        GLES20.glUniform4f(muColor, 0.0f, 1.0f, 0.0f, 1.0f);
         GLES20.glUniform4f(muCamera, 0.0f, 0.0f, 0.0f, 1.0f);
         GLES20.glUniform1i(muDTex1, 0);
         GLES20.glUniform1i(muDTex2, 1);
-        
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 	}
 	public final void drawCleanup(){
 		GLES20.glDisableVertexAttribArray(maPositionHandle);
@@ -92,7 +99,8 @@ public class CustomGL20Object extends ARGLES20Object {
 	
 	@Override
 	public final void drawGLES20() {
-		drawSetup();
+		GLES20.glUseProgram(mProgram2); //simplecolor
+		firstSetup();
 		int w = mRenderer.screenWidth;
 		int h = mRenderer.screenHeight;
 		colorTexture(colorbuf, w, h, 2);
@@ -103,6 +111,8 @@ public class CustomGL20Object extends ARGLES20Object {
         depthTexture(texbuf2, w, h, 1);
         GLES20.glEnable(GLES20.GL_CULL_FACE);
         
+        GLES20.glUseProgram(mProgram);
+        secondSetup();
         // Draw the cube faces
 	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 4, 4);
@@ -152,7 +162,6 @@ public class CustomGL20Object extends ARGLES20Object {
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, fbuf);
 		GLES20.glFramebufferTexture2D(GLES20.GL_FRAMEBUFFER, GLES20.GL_DEPTH_ATTACHMENT, GLES20.GL_TEXTURE_2D, buffer, 0);
         // Draw the cube faces
-		System.out.println(GLES20.glGetError());
 	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 4, 4);
 	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 8, 4);
@@ -167,7 +176,12 @@ public class CustomGL20Object extends ARGLES20Object {
 	
 	@Override
 	public void initGLES20() {
-		// Grab Attributes and uniforms from the loaded shader
+		
+		mProgram2 = GraphicsUtil.loadProgram( mRenderer.activity, "shaders/simplecolor.vs", "shaders/simplecolor.fs" );
+		
+		//REFRACTION SHADER VARIABLES
+		
+		GLES20.glUseProgram(mProgram);
         maPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
         GraphicsUtil.checkGlError("glGetAttribLocation aPosition");
         if (maPositionHandle == -1) {
@@ -177,11 +191,6 @@ public class CustomGL20Object extends ARGLES20Object {
         GraphicsUtil.checkGlError("glGetAttribLocation aNormal");
         if (maNormalHandle == -1) {
             throw new RuntimeException("Could not get attrib location for aNormal");
-        }
-        muColor = GLES20.glGetUniformLocation(mProgram, "uColor");
-        GraphicsUtil.checkGlError("glGetUniformLocation uColor");
-        if (muColor == -1) {
-            throw new RuntimeException("Could not get uniform location for uColor");
         }
         muCamera = GLES20.glGetUniformLocation(mProgram, "uCamera");
         GraphicsUtil.checkGlError("glGetUniformLocation uCamera");
@@ -202,6 +211,25 @@ public class CustomGL20Object extends ARGLES20Object {
         GraphicsUtil.checkGlError("glGetUniformLocation uViewport");
         if (muViewport == -1) {
             throw new RuntimeException("Could not get uniform location for uViewport");
+        }
+        
+        //SIMPLECOLOR SHADER VARIABLES
+        
+        GLES20.glUseProgram(mProgram2);
+		maPositionHandle = GLES20.glGetAttribLocation(mProgram2, "aPosition");
+        GraphicsUtil.checkGlError("glGetAttribLocation aPosition");
+        if (maPositionHandle == -1) {
+            throw new RuntimeException("Could not get attrib location for aPosition");
+        }
+        maNormalHandle = GLES20.glGetAttribLocation(mProgram2, "aNormal");
+        GraphicsUtil.checkGlError("glGetAttribLocation aNormal");
+        if (maNormalHandle == -1) {
+            throw new RuntimeException("Could not get attrib location for aNormal");
+        }
+        muColor = GLES20.glGetUniformLocation(mProgram2, "uColor");
+        GraphicsUtil.checkGlError("glGetUniformLocation uColor");
+        if (muColor == -1) {
+            throw new RuntimeException("Could not get uniform location for uColor");
         }
 		
         GLES20.glGenFramebuffers(1, framebuffers, 0);
