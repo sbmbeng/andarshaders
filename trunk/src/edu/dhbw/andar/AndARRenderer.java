@@ -94,7 +94,7 @@ public class AndARRenderer implements Renderer, PreviewFrameSink{
 	protected ARToolkit markerInfo;
 	protected float aspectRatio=1;
 	protected OpenGLRenderer customRenderer;
-	protected AndARActivity activity;
+	public AndARActivity activity;
 	
 	/**
 	 * mode, being either GL10.GL_RGB or GL10.GL_LUMINANCE
