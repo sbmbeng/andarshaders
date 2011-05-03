@@ -82,15 +82,14 @@ public class CustomGL20Object extends ARGLES20Object {
        
         GLES20.glUniform4f(muColor, 0.0f, 1.0f, 0.0f, 1.0f);
         
-        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 	}
 	public final void secondSetup(){
         int w = mRenderer.screenWidth;
 		int h = mRenderer.screenHeight;
 		GLES20.glUniform2f(muViewport, w, h);
         GLES20.glUniform4f(muCamera, 0.0f, 0.0f, 0.0f, 1.0f);
-        GLES20.glUniform1i(muDTex1, 0);
-        GLES20.glUniform1i(muDTex2, 1);
+        GLES20.glUniform1i(muDTex1, 2);
+        GLES20.glUniform1i(muDTex2, 3);
 	}
 	public final void drawCleanup(){
 		GLES20.glDisableVertexAttribArray(maPositionHandle);
@@ -103,15 +102,15 @@ public class CustomGL20Object extends ARGLES20Object {
 		firstSetup();
 		int w = mRenderer.screenWidth;
 		int h = mRenderer.screenHeight;
-		colorTexture(colorbuf, w, h, 2);
+		colorTexture(colorbuf, w, h, 4);
 		GLES20.glDisable(GLES20.GL_CULL_FACE);
 		GLES20.glDepthFunc(GLES20.GL_GREATER);
-        depthTexture(texbuf1, w, h, 0);
+        depthTexture(texbuf1, w, h, 2);
         GLES20.glDepthFunc(GLES20.GL_LESS);
-        depthTexture(texbuf2, w, h, 1);
+        depthTexture(texbuf2, w, h, 3);
         GLES20.glEnable(GLES20.GL_CULL_FACE);
         
-        GLES20.glUseProgram(mProgram);
+        GLES20.glUseProgram(mProgram); //refract
         secondSetup();
         // Draw the cube faces
 	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
@@ -126,7 +125,7 @@ public class CustomGL20Object extends ARGLES20Object {
 	    
 	}
 	public final void colorTexture(int buffer, int w, int h, int texture) {
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE4);
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, buffer);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
@@ -149,8 +148,8 @@ public class CustomGL20Object extends ARGLES20Object {
 		GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, oldViewport, 0);
 		
 		GLES20.glViewport(0,0,w,h);
-		if(texture == 0)GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
-		else GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
+		if(texture == 2)GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
+		else GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, buffer);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);

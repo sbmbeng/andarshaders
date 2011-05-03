@@ -19,11 +19,11 @@ void main (void) {
   
   float dist0 = texture2D(uDTex1, vSPosition.xy).x;
   float dist1 = texture2D(uDTex1, vSPosition.xy).y;
-  float dist2 = texture2D(uDTex1, vSPosition.xy).w;  
+  float dist2 = texture2D(uDTex1, vSPosition.xy).z;  
   
   float dist3 = texture2D(uDTex2, vSPosition.xy).x;
   float dist4 = texture2D(uDTex2, vSPosition.xy).y;
-  float dist5 = texture2D(uDTex2, vSPosition.xy).w;
+  float dist5 = texture2D(uDTex2, vSPosition.xy).z;
   
   float dist6 = dist0+dist1+dist2+dist3+dist4+dist5;
   
