@@ -125,7 +125,7 @@ public class CustomGL20Object extends ARGLES20Object {
 	    
 	}
 	public final void colorTexture(int buffer, int w, int h, int texture) {
-		GLES20.glActiveTexture(GLES20.GL_TEXTURE4);
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0+texture);
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, buffer);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);
@@ -148,8 +148,7 @@ public class CustomGL20Object extends ARGLES20Object {
 		GLES20.glGetIntegerv(GLES20.GL_VIEWPORT, oldViewport, 0);
 		
 		GLES20.glViewport(0,0,w,h);
-		if(texture == 2)GLES20.glActiveTexture(GLES20.GL_TEXTURE2);
-		else GLES20.glActiveTexture(GLES20.GL_TEXTURE3);
+		GLES20.glActiveTexture(GLES20.GL_TEXTURE0+texture);
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, buffer);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_S, GLES20.GL_CLAMP_TO_EDGE);
 		GLES20.glTexParameteri(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_WRAP_T, GLES20.GL_CLAMP_TO_EDGE);

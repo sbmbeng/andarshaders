@@ -1,3 +1,4 @@
+precision mediump float;
 uniform mat4 uMVPMatrix;
 uniform vec4 uCamera;
 attribute vec4 aNormal;
@@ -11,6 +12,7 @@ uniform vec2 uViewport;
 
 void main(void) {
   // pass along the normal 
+  vec4 asdf = uCamera;
   vNormal = aNormal;
   vPosition = aPosition;
   vSPosition = uMVPMatrix * aPosition;
