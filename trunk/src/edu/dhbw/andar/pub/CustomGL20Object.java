@@ -28,6 +28,8 @@ import edu.dhbw.andar.util.IO;
  */
 public class CustomGL20Object extends ARGLES20Object {
 	
+	private boolean refractive = false;
+	
 	private int mProgram2;
 	
 	private int maPositionHandle;
@@ -101,47 +103,72 @@ public class CustomGL20Object extends ARGLES20Object {
 	
 	@Override
 	public final void drawGLES20() {
-		// Create a cubemap for this object from vertices
-		GenerateCubemap( box.vertArray() );
-		
-		/*
-		GLES20.glUseProgram(mProgram2); //simplecolor
-		GraphicsUtil.checkGlError("CustomGL20Object glUseProgram mProgram2");
-		firstSetup();
-		int w = mRenderer.screenWidth;
-		int h = mRenderer.screenHeight;
-		Log.v( "CustomGLES20Object", "Generating the color texture" );
-		colorTexture(colorbuf, w, h, 4);
-		GLES20.glDisable(GLES20.GL_CULL_FACE);
-		GraphicsUtil.checkGlError("CustomGL20Object glDisable CULL_FACE");
-		GLES20.glDepthFunc(GLES20.GL_GREATER);
-		GraphicsUtil.checkGlError("CustomGL20Object glDepthFunc GL_GREATER");
-		Log.v( "CustomGLES20Object", "Generating the first depth texture" );
-        depthTexture(texbuf1, w, h, 2);
-        GLES20.glDepthFunc(GLES20.GL_LESS);
-        GraphicsUtil.checkGlError("CustomGL20Object glDepthFunc GL_LESS");
-        Log.v( "CustomGLES20Object", "Generating the second depth texture" );
-        depthTexture(texbuf2, w, h, 3);
-        GLES20.glEnable(GLES20.GL_CULL_FACE);
-        GraphicsUtil.checkGlError("CustomGL20Object glEnable CULL_FACE");
-        
-        GLES20.glUseProgram(mProgram); //refract
-        GraphicsUtil.checkGlError("CustomGL20Object glUseProgram mProgram");
-        secondSetup();
-        */
-    
-        // Draw the cube faces
-        Log.v( "CustomGLES20Object", "Drawing the final image" );
-	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
-	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 4, 4);
-	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 8, 4);
-	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 12, 4);
-	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 16, 4);
-	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 20, 4);
-	    GraphicsUtil.checkGlError("glDrawArrays");
+		if(refractive){
+			// Create a cubemap for this object from vertices
+			GenerateCubemap( box.vertArray() );
+			
+			GLES20.glUseProgram(mProgram2); //simplecolor
+			GraphicsUtil.checkGlError("CustomGL20Object glUseProgram mProgram2");
+			firstSetup();
+			int w = mRenderer.screenWidth;
+			int h = mRenderer.screenHeight;
+			Log.v( "CustomGLES20Object", "Generating the color texture" );
+			colorTexture(colorbuf, w, h, 4);
+			GLES20.glDisable(GLES20.GL_CULL_FACE);
+			GraphicsUtil.checkGlError("CustomGL20Object glDisable CULL_FACE");
+			GLES20.glDepthFunc(GLES20.GL_GREATER);
+			GraphicsUtil.checkGlError("CustomGL20Object glDepthFunc GL_GREATER");
+			Log.v( "CustomGLES20Object", "Generating the first depth texture" );
+	        depthTexture(texbuf1, w, h, 2);
+	        GLES20.glDepthFunc(GLES20.GL_LESS);
+	        GraphicsUtil.checkGlError("CustomGL20Object glDepthFunc GL_LESS");
+	        Log.v( "CustomGLES20Object", "Generating the second depth texture" );
+	        depthTexture(texbuf2, w, h, 3);
+	        GLES20.glEnable(GLES20.GL_CULL_FACE);
+	        GraphicsUtil.checkGlError("CustomGL20Object glEnable CULL_FACE");
+	        
+	        GLES20.glUseProgram(mProgram); //refract
+	        GraphicsUtil.checkGlError("CustomGL20Object glUseProgram mProgram");
+	        secondSetup();
+	        
 	    
-	    drawCleanup();
-	    
+	        // Draw the cube faces
+	        Log.v( "CustomGLES20Object", "Drawing the final image" );
+		    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+		    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 4, 4);
+		    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 8, 4);
+		    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 12, 4);
+		    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 16, 4);
+		    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 20, 4);
+		    GraphicsUtil.checkGlError("glDrawArrays");
+		}
+		else{
+			GenerateCubemap( box.vertArray() );
+			box.verts().position(0);
+			box.normals().position(0);
+			
+			GLES20.glVertexAttribPointer(maPositionHandle, 3, GLES20.GL_FLOAT, false,
+	                VERTEX_NORMAL_DATA_STRIDE, box.verts());
+	        GraphicsUtil.checkGlError("CustomGL20Object glVertexAttribPointer maPosition");
+	        GLES20.glEnableVertexAttribArray(maPositionHandle);
+	        GraphicsUtil.checkGlError("CustomGL20Object glEnableVertexAttribArray maPositionHandle");
+	        
+	        GLES20.glVertexAttribPointer(maNormalHandle, 3, GLES20.GL_FLOAT, false,
+	                VERTEX_NORMAL_DATA_STRIDE, box.normals());
+	        GraphicsUtil.checkGlError("CustomGL20Object glVertexAttribPointer maNormalHandle");
+	        GLES20.glEnableVertexAttribArray(maNormalHandle);
+	        GraphicsUtil.checkGlError("CustomGL20Object glEnableVertexAttribArray maNormalHandle");
+	        
+	        Log.v( "CustomGLES20Object", "Drawing the final image" );
+		    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
+		    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 4, 4);
+		    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 8, 4);
+		    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 12, 4);
+		    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 16, 4);
+		    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 20, 4);
+		    GraphicsUtil.checkGlError("glDrawArrays");
+		}
+	drawCleanup();
 	}
 	public final void colorTexture(int buffer, int w, int h, int texture) {
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE0+texture);
@@ -212,76 +239,104 @@ public class CustomGL20Object extends ARGLES20Object {
 	
 	@Override
 	public void initGLES20() {
-		
-		mProgram2 = GraphicsUtil.loadProgram( mRenderer.activity, "shaders/simplecolor.vs", "shaders/simplecolor.fs" );
-		
-		//REFRACTION SHADER VARIABLES
-		
-		GLES20.glUseProgram(mProgram);
-        maPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
-        GraphicsUtil.checkGlError("glGetAttribLocation aPosition");
-        if (maPositionHandle == -1) {
-            throw new RuntimeException("Could not get attrib location for aPosition");
-        }
-        maNormalHandle = GLES20.glGetAttribLocation(mProgram, "aNormal");
-        GraphicsUtil.checkGlError("glGetAttribLocation aNormal");
-        if (maNormalHandle == -1) {
-            throw new RuntimeException("Could not get attrib location for aNormal");
-        }
-        muCamera = GLES20.glGetUniformLocation(mProgram, "uCamera");
-        GraphicsUtil.checkGlError("glGetUniformLocation uCamera");
-        if (muCamera == -1) {
-            throw new RuntimeException("Could not get uniform location for uCamera");
-        }
-        muDTex1 = GLES20.glGetUniformLocation(mProgram, "uDTex1");
-        GraphicsUtil.checkGlError("glGetUniformLocation uDTex1");
-        if (muDTex1 == -1) {
-            throw new RuntimeException("Could not get uniform location for uDTex1");
-        }
-        muDTex2 = GLES20.glGetUniformLocation(mProgram, "uDTex2");
-        GraphicsUtil.checkGlError("glGetUniformLocation uDTex2");
-        if (muDTex2 == -1) {
-            throw new RuntimeException("Could not get uniform location for uDTex2");
-        }
-        muViewport = GLES20.glGetUniformLocation(mProgram, "uViewport");
-        GraphicsUtil.checkGlError("glGetUniformLocation uViewport");
-        if (muViewport == -1) {
-            throw new RuntimeException("Could not get uniform location for uViewport");
-        }
-        
-        //SIMPLECOLOR SHADER VARIABLES
-        
-        GLES20.glUseProgram(mProgram2);
-		maPositionHandle = GLES20.glGetAttribLocation(mProgram2, "aPosition");
-        GraphicsUtil.checkGlError("glGetAttribLocation aPosition");
-        if (maPositionHandle == -1) {
-            throw new RuntimeException("Could not get attrib location for aPosition");
-        }
-        maNormalHandle = GLES20.glGetAttribLocation(mProgram2, "aNormal");
-        GraphicsUtil.checkGlError("glGetAttribLocation aNormal");
-        if (maNormalHandle == -1) {
-            throw new RuntimeException("Could not get attrib location for aNormal");
-        }
-        muColor = GLES20.glGetUniformLocation(mProgram2, "uColor");
-        GraphicsUtil.checkGlError("glGetUniformLocation uColor");
-        if (muColor == -1) {
-            throw new RuntimeException("Could not get uniform location for uColor");
-        }
-		
-        GLES20.glGenFramebuffers(1, framebuffers, 0);
-		GLES20.glGenTextures(3, textures, 0);
-		fbuf = framebuffers[0];
-		texbuf1 = textures[0];
-		texbuf2 = textures[1];
-		colorbuf = textures[2];
+		if(refractive == true){
+			mProgram2 = GraphicsUtil.loadProgram( mRenderer.activity, "shaders/simplecolor.vs", "shaders/simplecolor.fs" );
+			
+			//REFRACTION SHADER VARIABLES
+			
+			GLES20.glUseProgram(mProgram);
+	        maPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
+	        GraphicsUtil.checkGlError("glGetAttribLocation aPosition");
+	        if (maPositionHandle == -1) {
+	            throw new RuntimeException("Could not get attrib location for aPosition");
+	        }
+	        maNormalHandle = GLES20.glGetAttribLocation(mProgram, "aNormal");
+	        GraphicsUtil.checkGlError("glGetAttribLocation aNormal");
+	        if (maNormalHandle == -1) {
+	            throw new RuntimeException("Could not get attrib location for aNormal");
+	        }
+	        muCamera = GLES20.glGetUniformLocation(mProgram, "uCamera");
+	        GraphicsUtil.checkGlError("glGetUniformLocation uCamera");
+	        if (muCamera == -1) {
+	            throw new RuntimeException("Could not get uniform location for uCamera");
+	        }
+	        muDTex1 = GLES20.glGetUniformLocation(mProgram, "uDTex1");
+	        GraphicsUtil.checkGlError("glGetUniformLocation uDTex1");
+	        if (muDTex1 == -1) {
+	            throw new RuntimeException("Could not get uniform location for uDTex1");
+	        }
+	        muDTex2 = GLES20.glGetUniformLocation(mProgram, "uDTex2");
+	        GraphicsUtil.checkGlError("glGetUniformLocation uDTex2");
+	        if (muDTex2 == -1) {
+	            throw new RuntimeException("Could not get uniform location for uDTex2");
+	        }
+	        muViewport = GLES20.glGetUniformLocation(mProgram, "uViewport");
+	        GraphicsUtil.checkGlError("glGetUniformLocation uViewport");
+	        if (muViewport == -1) {
+	            throw new RuntimeException("Could not get uniform location for uViewport");
+	        }
+	        
+	        //SIMPLECOLOR SHADER VARIABLES
+	        
+	        GLES20.glUseProgram(mProgram2);
+			maPositionHandle = GLES20.glGetAttribLocation(mProgram2, "aPosition");
+	        GraphicsUtil.checkGlError("glGetAttribLocation aPosition");
+	        if (maPositionHandle == -1) {
+	            throw new RuntimeException("Could not get attrib location for aPosition");
+	        }
+	        maNormalHandle = GLES20.glGetAttribLocation(mProgram2, "aNormal");
+	        GraphicsUtil.checkGlError("glGetAttribLocation aNormal");
+	        if (maNormalHandle == -1) {
+	            throw new RuntimeException("Could not get attrib location for aNormal");
+	        }
+	        muColor = GLES20.glGetUniformLocation(mProgram2, "uColor");
+	        GraphicsUtil.checkGlError("glGetUniformLocation uColor");
+	        if (muColor == -1) {
+	            throw new RuntimeException("Could not get uniform location for uColor");
+	        }
+			
+	        GLES20.glGenFramebuffers(1, framebuffers, 0);
+			GLES20.glGenTextures(3, textures, 0);
+			fbuf = framebuffers[0];
+			texbuf1 = textures[0];
+			texbuf2 = textures[1];
+			colorbuf = textures[2];
+		}
+		else{
+			//REFLECTION: EASY MODE???
+			maPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
+	        GraphicsUtil.checkGlError("glGetAttribLocation aPosition");
+	        if (maPositionHandle == -1) {
+	            throw new RuntimeException("Could not get attrib location for aPosition");
+	        }
+	        maNormalHandle = GLES20.glGetAttribLocation(mProgram, "aNormal");
+	        GraphicsUtil.checkGlError("glGetAttribLocation aNormal");
+	        if (maNormalHandle == -1) {
+	            throw new RuntimeException("Could not get attrib location for aNormal");
+	        }
+		}
 	}
 
 	/**
 	 * Set the shader program files for this object
 	 */
 	@Override
-	public String vertexProgramPath() { return "shaders/refract.vs"; }
+	public String vertexProgramPath() {
+		if(refractive){
+			return "shaders/refract.vs"; 
+		}
+		else{
+			return "shaders/reflect.vs";
+		}
+	}
 
 	@Override
-	public String fragmentProgramPath() { return "shaders/refract.fs"; }
+	public String fragmentProgramPath() { 
+		if(refractive){
+			return "shaders/refract.fs"; 
+		}
+		else{
+			return "shaders/reflect.fs";
+		}
+	}
 }
