@@ -27,7 +27,7 @@ void main (void) {
   
   float dist6 = dist0+dist1+dist2+dist3+dist4+dist5;
   
-  color = vec3(dist6,dist6,dist6);
+  color = vec3(dist6/T1.x,dist6/T1.x,dist6/T1.x);
 
   gl_FragColor = vec4 (color, 1.0);
 }
