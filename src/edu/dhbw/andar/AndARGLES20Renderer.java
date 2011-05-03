@@ -300,7 +300,7 @@ public class AndARGLES20Renderer extends AndARRenderer {
         GLES20.glUniform1i(mSamplerLoc, 0); // Use the camera texture (bound in unit zero)
         
         // Render to the front face of the cubemap
-        /* This code causes memory problems for whatever reason.
+        // This code causes memory problems for whatever reason.
         GLES20.glActiveTexture(GLES20.GL_TEXTURE1);
         GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, 0); // Ensure we aren't rendering to the same texture we're using
         GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFrameBuffers[5]);
@@ -318,7 +318,7 @@ public class AndARGLES20Renderer extends AndARRenderer {
 		
 		// Unbind the framebuffer, we no longer need to render to textures.
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
-		*/
+		
 		
 		// Ensure the newly generated cubemap is bound to the correct texture unit
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, mCubeMapTexture);
