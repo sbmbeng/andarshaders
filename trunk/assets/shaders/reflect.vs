@@ -1,10 +1,12 @@
-uniform mat4 uMVPMatrix;
+precision mediump float;
+uniform mat4 uMVMatrix;
+uniform mat4 uPMatrix;
 attribute vec4 aPosition;
 attribute vec3 aNormal;
-varying vec3 v_normal;
+varying vec3 reflected;
 void main() {
-	gl_Position = uMVPMatrix * aPosition;
-	//v_normal = reflect(aPosition,vec4(aNormal,1.0)).xyz;
-	//v_normal = aNormal;
-	v_normal = ( vec4( aNormal, 1.0 ) * uMVPMatrix ).xyz;
+	gl_Position = uPMatrix * uMVMatrix * aPosition;
+	vec3 normal = uMVMatrix*aNormal;
+	vec4 incident = uMVMatrix*aPosition;
+	reflected = reflect(incident, normal);
 }
