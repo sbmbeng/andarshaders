@@ -18,14 +18,17 @@ import android.util.Log;
 public abstract class ARGLES20Object extends ARObject {
 	protected AndARGLES20Renderer mRenderer;
 	protected int mProgram;
-	protected int muMVPMatrixHandle;
-	protected float[] mMVPMatrix = new float[16]; // Projection*ModelView Matrix
+	protected int muMVMatrixHandle;
+	protected int muPMatrixHandle;
+	protected float[] mMVMatrix = new float[16]; // ModelView Matrix
+	protected float[] mPMatrix = new float[16];
 	
 	public ARGLES20Object(String name, String patternName, double markerWidth, double[] markerCenter, AndARGLES20Renderer renderer) {
 		super(name, patternName, markerWidth, markerCenter);
 		mRenderer = renderer;
 		mProgram = 0;
-		muMVPMatrixHandle = 0;
+		muMVMatrixHandle = 0;
+		muPMatrixHandle = 0;
 	}
 	
 	/**
@@ -44,9 +47,10 @@ public abstract class ARGLES20Object extends ARObject {
 		
 		if( glCameraMatrixBuffer != null) {
 			// Transform to where the marker is
-			Matrix.multiplyMM(mMVPMatrix, 0, glCameraMatrix, 0, glMatrix, 0);
-			GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, mMVPMatrix, 0);
-			GraphicsUtil.checkGlError("glUniformMatrix4fv muMVPMatrixHandle");
+			GLES20.glUniformMatrix4fv(muMVMatrixHandle, 1, false, glMatrix, 0);
+			GraphicsUtil.checkGlError("glUniformMatrix4fv muMVMatrixHandle");
+			GLES20.glUniformMatrix4fv(muPMatrixHandle, 1, false, glCameraMatrix, 0);
+			GraphicsUtil.checkGlError("glUniformMatrix4fv muPMatrixHandle");
 		}
 		
 		// Let the object draw
@@ -65,9 +69,10 @@ public abstract class ARGLES20Object extends ARObject {
 		
 		if( glCameraMatrixBuffer != null) {
 			// Transform to where the marker is
-			Matrix.multiplyMM(mMVPMatrix, 0, glCameraMatrix, 0, glMatrix, 0);
-			GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, mMVPMatrix, 0);
-			GraphicsUtil.checkGlError("glUniformMatrix4fv muMVPMatrixHandle");
+			GLES20.glUniformMatrix4fv(muMVMatrixHandle, 1, false, glMatrix, 0);
+			GraphicsUtil.checkGlError("glUniformMatrix4fv muMVMatrixHandle");
+			GLES20.glUniformMatrix4fv(muPMatrixHandle, 1, false, glCameraMatrix, 0);
+			GraphicsUtil.checkGlError("glUniformMatrix4fv muPMatrixHandle");
 		}
 		
 		// Allow the object to predraw
@@ -93,10 +98,15 @@ public abstract class ARGLES20Object extends ARObject {
 	{
 		// Load and compile the program, grab the attribute for transformation matrix
 		mProgram = GraphicsUtil.loadProgram( mRenderer.activity, vspath, fspath );
-		muMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
-        GraphicsUtil.checkGlError("ARGLES20Object glGetUniformLocation uMVPMatrix");
-        if (muMVPMatrixHandle == -1) {
-            throw new RuntimeException("Requested shader does not have a uniform named uMVPMatrix");
+		muMVMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVMatrix");
+        GraphicsUtil.checkGlError("ARGLES20Object glGetUniformLocation uMVMatrix");
+        if (muMVMatrixHandle == -1) {
+            throw new RuntimeException("Requested shader does not have a uniform named uMVMatrix");
+        }
+        muPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uPMatrix");
+        GraphicsUtil.checkGlError("ARGLES20Object glGetUniformLocation uPMatrix");
+        if (muPMatrixHandle == -1) {
+            throw new RuntimeException("Requested shader does not have a uniform named uPMatrix");
         }
 	}
 	
