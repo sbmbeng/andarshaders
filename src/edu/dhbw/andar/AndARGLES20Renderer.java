@@ -35,6 +35,7 @@ import javax.microedition.khronos.opengles.GL10;
 
 import edu.dhbw.andar.interfaces.OpenGLRenderer;
 import edu.dhbw.andar.interfaces.PreviewFrameSink;
+import edu.dhbw.andar.util.GraphicsDebugDraw;
 import edu.dhbw.andar.util.IO;
 import edu.dhbw.andar.util.GraphicsUtil;
 
@@ -58,6 +59,8 @@ import android.util.Log;
  */
 public class AndARGLES20Renderer extends AndARRenderer {
 	private final String TAG = "AndARGLES20Renderer";
+	public GraphicsDebugDraw mDebugDraw;
+	public boolean mDebug = true;
 	
 	// GLES 2.0 doesn't do matrix math for us for free.
     private float[] mMVPMatrix = new float[16]; // Projection*ModelView Matrix
@@ -72,6 +75,7 @@ public class AndARGLES20Renderer extends AndARRenderer {
 	private int[] mFrameBuffers;
 	private int mCubeMapTexture;
 	private DynamicCubemap mDC;
+	private int mDebugFace = 4; // -1 for no debug
 	
 	/**
 	 * mode, being either GLES20.GL_RGB or GLES20.GL_LUMINANCE
@@ -94,6 +98,8 @@ public class AndARGLES20Renderer extends AndARRenderer {
 	 */
 	@Override
 	public void onSurfaceCreated(GL10 gl, EGLConfig config) {
+		mDebugDraw = new GraphicsDebugDraw( activity );
+		
 		// Load shaders from assets, compile and load a program
 		mProgram = GraphicsUtil.loadProgram( activity, "shaders/simpletexture.vs", "shaders/simpletexture.fs" );
         if (mProgram == 0) { 
@@ -227,6 +233,15 @@ public class AndARGLES20Renderer extends AndARRenderer {
 		GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
 		GraphicsUtil.checkGlError("glDrawArrays");
 		
+		// Debug a cubemap face
+		if( mDebugFace != -1 ) {
+			float[] projmatrix = new float[16]; // Projection Matrix
+			Matrix.orthoM(projmatrix, 0, -1.0f, 5.0f, -1.0f, 5.0f, -1.0f, 1.0f);
+			Matrix.multiplyMM(mMVPMatrix, 0, projmatrix, 0, mVMatrix, 0);
+			GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, mMVPMatrix, 0);
+			mDC.DrawFace( mDebugFace, maPositionHandle, maTextureHandle );
+		}
+		
 		GLES20.glDisableVertexAttribArray(maPositionHandle);
 		GLES20.glDisableVertexAttribArray(maTextureHandle);
 		
@@ -234,6 +249,9 @@ public class AndARGLES20Renderer extends AndARRenderer {
 		
 		if(customRenderer != null)
 			customRenderer.draw(null);
+		
+		if( mDebug )
+			mDebugDraw.debugDraw();
 		
 		//take a screenshot, if desired
 		if(takeScreenshot) {
