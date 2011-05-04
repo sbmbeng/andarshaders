@@ -156,7 +156,14 @@ public abstract class ARGLES20Object extends ARObject {
 		float[] aabb = GraphicsUtil.calcAABB( vertices );
 		//Log.v("ARGLES20Object", "AABB: Min: ( " + aabb[0] + ", " + aabb[1] + ", " + aabb[2] + " ), Max: ( " + aabb[3] + ", " + aabb[4] + ", " + aabb[5] + " ) " );
 		float[] ssbb = calcSSBB( aabb );
-		//Log.v("ARGLES20Object", "SSBB: Min: ( " + ssbb[0] + ", " + ssbb[1] + " ), Max: ( " + ssbb[2] + ", " + ssbb[3] + ") " );
+		//Log.d("ARGLES20Object", "SSBB: Min: ( " + ssbb[0] + ", " + ssbb[1] + " ), Max: ( " + ssbb[2] + ", " + ssbb[3] + ") " );
+		float[] ssbbverts = {
+				ssbb[0], ssbb[1], 0.0f,
+				ssbb[2], ssbb[1], 0.0f,
+				ssbb[0], ssbb[3], 0.0f,
+				ssbb[2], ssbb[3], 0.0f
+		};
+		mRenderer.mDebugDraw.debugTriangleStrip( ssbbverts );
 		mRenderer.generateCubemap( ssbb );
 	}
 	
