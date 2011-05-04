@@ -1,25 +1,14 @@
 package edu.dhbw.andar.pub;
 
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
 
-import javax.microedition.khronos.opengles.GL10;
-import javax.microedition.khronos.opengles.GL10Ext;
 
 import android.opengl.GLES20;
-import android.opengl.GLU;
-import android.opengl.GLUtils;
-import android.opengl.Matrix;
 import android.util.Log;
 
 import edu.dhbw.andar.ARGLES20Object;
-import edu.dhbw.andar.ARObject;
 import edu.dhbw.andar.AndARGLES20Renderer;
-import edu.dhbw.andar.AndARRenderer;
 import edu.dhbw.andar.util.GraphicsUtil;
-import edu.dhbw.andar.util.IO;
+import com.openglesbook.common.ESShapes;
 
 /**
  * An example of an AR object being drawn on a marker.
@@ -29,48 +18,47 @@ import edu.dhbw.andar.util.IO;
 public class ReflectiveObject extends ARGLES20Object {	
 	private int maPositionHandle;
 	private int maNormalHandle;
+	private int muCubemap;
 
 	public ReflectiveObject(String name, String patternName,
 			double markerWidth, double[] markerCenter, AndARGLES20Renderer renderer) {
 		super(name, patternName, markerWidth, markerCenter, renderer);
 	}
 	
-	private SimpleBox box = new SimpleBox();
+	private ESShapes mSphere = new ESShapes();
 
 	@Override
 	public final void predrawGLES20() {
 		// Create a cubemap for this object from vertices
-		GenerateCubemap( box.vertArray() );
+		GenerateCubemap( mSphere.getVertexData() );
 	}
 	
 	@Override
 	public final void drawGLES20() {
-		box.verts().position(0);
-		box.normals().position(0);
+		GLES20.glCullFace(GLES20.GL_BACK);
+        GLES20.glEnable(GLES20.GL_CULL_FACE);
 		
-		GLES20.glVertexAttribPointer(maPositionHandle, 3, GLES20.GL_FLOAT, false,
-                GraphicsUtil.TRIANGLE_VERTICES_DATA_STRIDE_BYTES, box.verts());
+		GLES20.glVertexAttribPointer(maPositionHandle, 3, GLES20.GL_FLOAT, false, 0, mSphere.getVertices());
         GraphicsUtil.checkGlError("CustomGL20Object glVertexAttribPointer maPosition");
         GLES20.glEnableVertexAttribArray(maPositionHandle);
         GraphicsUtil.checkGlError("CustomGL20Object glEnableVertexAttribArray maPositionHandle");
         
-        GLES20.glVertexAttribPointer(maNormalHandle, 3, GLES20.GL_FLOAT, false,
-                GraphicsUtil.VERTEX_NORMAL_DATA_STRIDE, box.normals());
+        GLES20.glVertexAttribPointer(maNormalHandle, 3, GLES20.GL_FLOAT, false, 0, mSphere.getNormals());
         GraphicsUtil.checkGlError("CustomGL20Object glVertexAttribPointer maNormalHandle");
         GLES20.glEnableVertexAttribArray(maNormalHandle);
         GraphicsUtil.checkGlError("CustomGL20Object glEnableVertexAttribArray maNormalHandle");
         
-        Log.v( "CustomGLES20Object", "Drawing the final image" );
-	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 0, 4);
-	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 4, 4);
-	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 8, 4);
-	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 12, 4);
-	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 16, 4);
-	    GLES20.glDrawArrays(GLES20.GL_TRIANGLE_STRIP, 20, 4);
-	    GraphicsUtil.checkGlError("glDrawArrays");
+        GLES20.glUniform1i( muCubemap, 1 );
+        GraphicsUtil.checkGlError("CustomGL20Object glUniform1i");
+        
+        Log.v( "ReflectiveObject", "Drawing the final image" );
+        GLES20.glDrawElements ( GLES20.GL_TRIANGLES, mSphere.getNumIndices(), GLES20.GL_UNSIGNED_SHORT, mSphere.getIndices() );
+	    GraphicsUtil.checkGlError("glDrawElements");
 	    
 	    GLES20.glDisableVertexAttribArray(maPositionHandle);
 		GLES20.glDisableVertexAttribArray(maNormalHandle);
+		
+        GLES20.glDisable(GLES20.GL_CULL_FACE);
 		GraphicsUtil.checkGlError("CustomGL20Object glDisableAttrib");
 	}
 	
@@ -87,6 +75,14 @@ public class ReflectiveObject extends ARGLES20Object {
         if (maNormalHandle == -1) {
             throw new RuntimeException("Could not get attrib location for aNormal");
         }
+        muCubemap = GLES20.glGetUniformLocation(mProgram, "uCubemap");
+        GraphicsUtil.checkGlError("glGetUniformLocation uCubemap");
+        if (muCubemap == -1) {
+            throw new RuntimeException("Could not get uniform location for uCubemap");
+        }
+        
+        // Generate the vertex data
+        mSphere.genSphere( 20, 25.0f );
 	}
 
 	/**

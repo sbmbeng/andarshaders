@@ -1,11 +1,6 @@
 precision mediump float;
-varying vec4 reflected;
-uniform samplerCube cubemap;
-
-// a shader for Refraction!
-
-void main (void) {   
-  vec4 color;
-  color=vec4(textureCube(cubemap,reflected.xyz));
-  gl_FragColor = color;
+varying vec3 v_normal;
+uniform samplerCube uCubemap;
+void main() {
+	gl_FragColor = textureCube( uCubemap, v_normal );
 }
