@@ -233,6 +233,22 @@ public class ARToolkit {
 	}
 	
 	/**
+	 * Predraw all ARObjects.
+	 * @param gl
+	 */
+	public final void predraw(GL10 gl) {
+		if(initialized) {
+			Log.v("ARToolkit", "Predrawing " + arobjects.size() + " objects...");
+			if(Config.DEBUG)
+				Log.i("MarkerInfo", "going to predraw opengl stuff now");
+			for (ARObject obj : arobjects) {
+				if(obj.isVisible())
+					obj.predraw(gl);
+			}
+		}
+	}
+	
+	/**
 	 * Draw all ARObjects.
 	 * @param gl
 	 */

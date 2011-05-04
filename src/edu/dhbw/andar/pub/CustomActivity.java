@@ -42,7 +42,7 @@ public class CustomActivity extends AndARActivity {
 			artoolkit = super.getArtoolkit();
 			if( super.isGLES20() )
 			{
-				CustomGL20Object someObject = new CustomGL20Object
+				ReflectiveObject someObject = new ReflectiveObject
 				("test", "android.patt", 80.0, new double[]{0,0}, (AndARGLES20Renderer) super.getRenderer());
 				artoolkit.registerARObject(someObject);
 			}
