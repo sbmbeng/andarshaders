@@ -337,7 +337,63 @@ public class DynamicCubemap {
         mFrontFaceTBuffer.clear();
         mFrontFaceTBuffer.put( mFrontFaceUVs );
         
-        // TODO: Update all other face UV Buffers
+        // Update all other face UV Buffers
+        // Positive X (Left)
+        mOtherFaceUVs[0][0] = ssbb[2] * uCorrection;
+        mOtherFaceUVs[0][1] = ssbb[1] * vCorrection;
+        mOtherFaceUVs[0][2] = ( ssbb[2] + ( ( 1.0f - ssbb[2] ) / 2.0f ) ) * uCorrection;
+        mOtherFaceUVs[0][3] = ( ssbb[1] / 2.0f ) * vCorrection;
+        mOtherFaceUVs[0][4] = ssbb[2] * uCorrection;
+        mOtherFaceUVs[0][5] = ssbb[3] * vCorrection;
+        mOtherFaceUVs[0][6] = ( ssbb[2] + ( ( 1.0f - ssbb[2] ) / 2.0f ) ) * uCorrection;
+        mOtherFaceUVs[0][7] = ( ssbb[3] + ( ( 1.0f - ssbb[3] ) / 2.0f ) ) * vCorrection;
+        
+        // Negative X (Right)
+        mOtherFaceUVs[1][0] = ( ssbb[0] / 2.0f ) * uCorrection;
+        mOtherFaceUVs[1][1] = ( ssbb[1] / 2.0f ) * vCorrection;
+        mOtherFaceUVs[1][2] = ssbb[0] * uCorrection;
+        mOtherFaceUVs[1][3] = ssbb[1] * vCorrection;
+        mOtherFaceUVs[1][4] = ( ssbb[0] / 2.0f ) * uCorrection;
+        mOtherFaceUVs[1][5] = ( ssbb[3] + ( ( 1.0f - ssbb[3] ) / 2.0f ) ) * vCorrection;
+        mOtherFaceUVs[1][6] = ssbb[0] * uCorrection;
+        mOtherFaceUVs[1][7] = ssbb[3] * vCorrection;
+        
+        // Positive Y (Top)
+        mOtherFaceUVs[2][0] = ssbb[0] * uCorrection;
+        mOtherFaceUVs[2][1] = ssbb[3] * vCorrection;
+        mOtherFaceUVs[2][2] = ssbb[2] * uCorrection;
+        mOtherFaceUVs[2][3] = ssbb[3] * vCorrection;
+        mOtherFaceUVs[2][4] = ( ssbb[0] / 2.0f ) * uCorrection;
+        mOtherFaceUVs[2][5] = ( ssbb[3] + ( ( 1.0f - ssbb[3] ) / 2.0f ) ) * vCorrection;
+        mOtherFaceUVs[2][6] = ( ssbb[2] + ( ( 1.0f - ssbb[2] ) / 2.0f ) ) * uCorrection;
+        mOtherFaceUVs[2][7] = ( ssbb[3] + ( ( 1.0f - ssbb[3] ) / 2.0f ) ) * vCorrection;
+        
+        // Negative Y (Bottom)
+        mOtherFaceUVs[3][0] = ( ssbb[0] / 2.0f ) * uCorrection;
+        mOtherFaceUVs[3][1] = ( ssbb[1] / 2.0f ) * vCorrection;
+        mOtherFaceUVs[3][2] = ( ssbb[2] + ( ( 1.0f - ssbb[2] ) / 2.0f ) ) * uCorrection;
+        mOtherFaceUVs[3][3] = ( ssbb[1] / 2.0f ) * vCorrection;
+        mOtherFaceUVs[3][4] = ssbb[0] * uCorrection;
+        mOtherFaceUVs[3][5] = ssbb[1] * vCorrection;
+        mOtherFaceUVs[3][6] = ssbb[2] * uCorrection;
+        mOtherFaceUVs[3][7] = ssbb[1] * vCorrection;
+        
+        // Positive Z
+        mOtherFaceUVs[4][0] = ssbb[0] * uCorrection;
+        mOtherFaceUVs[4][1] = ssbb[1] * vCorrection;
+        mOtherFaceUVs[4][2] = ssbb[2] * uCorrection;
+        mOtherFaceUVs[4][3] = ssbb[1] * vCorrection;
+        mOtherFaceUVs[4][4] = ssbb[0] * uCorrection;
+        mOtherFaceUVs[4][5] = ssbb[3] * vCorrection;
+        mOtherFaceUVs[4][6] = ssbb[2] * uCorrection;
+        mOtherFaceUVs[4][7] = ssbb[3] * vCorrection;
+        
+        // Update the floatbuffers
+        for( int i = 0; i < 5; i++ ) {
+        	mOtherFaceTBuffers[i].clear();
+        	mOtherFaceTBuffers[i].put( mOtherFaceUVs[i] );
+        }
+       
 	}
 	
 	/**
