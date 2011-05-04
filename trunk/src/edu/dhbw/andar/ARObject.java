@@ -134,6 +134,7 @@ public abstract class ARObject {
 			init(gl);
 			initialized = true;
 		}
+		
 		if( glCameraMatrixBuffer != null) {
 			glMatrixBuffer.put(glMatrix);
 			glMatrixBuffer.position(0);
@@ -150,6 +151,13 @@ public abstract class ARObject {
 		}
 	}
 	
-	public abstract void init(GL10 gl ); 
+	public abstract void init(GL10 gl );
+	
+	public synchronized void predraw( GL10 gl ) {
+		if(!initialized) {
+			init(gl);
+			initialized = true;
+		}
+	}
 	
 }

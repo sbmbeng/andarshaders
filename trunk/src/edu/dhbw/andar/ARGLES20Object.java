@@ -52,6 +52,27 @@ public abstract class ARGLES20Object extends ARObject {
 		// Let the object draw
 		drawGLES20();
 	}
+	
+	@Override
+	public synchronized void predraw( GL10 glUnused ) {
+		if(!initialized) {
+			init(glUnused);
+			initialized = true;
+		}
+		
+		// Ensure we're using the program we need
+		GLES20.glUseProgram( mProgram );
+		
+		if( glCameraMatrixBuffer != null) {
+			// Transform to where the marker is
+			Matrix.multiplyMM(mMVPMatrix, 0, glCameraMatrix, 0, glMatrix, 0);
+			GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, mMVPMatrix, 0);
+			GraphicsUtil.checkGlError("glUniformMatrix4fv muMVPMatrixHandle");
+		}
+		
+		// Allow the object to predraw
+		predrawGLES20();
+	}
 
 	/**
 	 * Initialize the shader and transform matrix attributes
@@ -134,6 +155,11 @@ public abstract class ARGLES20Object extends ARObject {
 	 * Implement this method and setup GL to render your object here
 	 */
 	public abstract void initGLES20();
+	
+	/**
+	 * Implement this method to do all RTT and pre-draw stuff before the draw to the screen
+	 */
+	public abstract void predrawGLES20();
 	
 	/**
 	 * Implement this method and draw your object within it

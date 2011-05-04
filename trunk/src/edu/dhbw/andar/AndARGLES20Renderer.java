@@ -177,13 +177,9 @@ public class AndARGLES20Renderer extends AndARRenderer {
 	 */
 	@Override
 	public void onDrawFrame(GL10 glUnused) {
-		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
-		GLES20.glUseProgram(mProgram);
-		GraphicsUtil.checkGlError("glUseProgram");
+		//load new preview frame as a texture, if needed
 		GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureName);
-		
-		//load new preview frame as a texture, if needed
 		if (frameEnqueued) {
 			frameLock.lock();
 			if(!isTextureInitialized) {
@@ -199,6 +195,15 @@ public class AndARGLES20Renderer extends AndARRenderer {
 			GLES20.glTexParameterf(GLES20.GL_TEXTURE_2D, GLES20.GL_TEXTURE_MAG_FILTER, GLES20.GL_LINEAR);
 			frameEnqueued = false;
 		}
+		
+		if(customRenderer != null)
+			customRenderer.setupEnv(null);
+		
+		markerInfo.predraw(null);
+		
+		GLES20.glClear(GLES20.GL_COLOR_BUFFER_BIT);
+		GLES20.glUseProgram(mProgram);
+		GraphicsUtil.checkGlError("glUseProgram");
 		
 		//draw camera preview frame:
 		squareBuffer.position(0);
@@ -224,9 +229,6 @@ public class AndARGLES20Renderer extends AndARRenderer {
 		
 		GLES20.glDisableVertexAttribArray(maPositionHandle);
 		GLES20.glDisableVertexAttribArray(maTextureHandle);
-		
-		if(customRenderer != null)
-			customRenderer.setupEnv(null);
 		
 		markerInfo.draw(null);
 		
@@ -318,7 +320,6 @@ public class AndARGLES20Renderer extends AndARRenderer {
 		
 		// Unbind the framebuffer, we no longer need to render to textures.
 		GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, 0);
-		
 		
 		// Ensure the newly generated cubemap is bound to the correct texture unit
 		GLES20.glBindTexture(GLES20.GL_TEXTURE_CUBE_MAP, mCubeMapTexture);
