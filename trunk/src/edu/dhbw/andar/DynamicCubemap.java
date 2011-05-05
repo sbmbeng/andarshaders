@@ -375,34 +375,33 @@ public class DynamicCubemap {
         
         // Positive Y (Top)
         mOtherFaceUVs[2][0]  = ( ssbb[2] + ( ( 1.0f - ssbb[2] ) / 2.0f ) ) * uCorrection;
-        mOtherFaceUVs[2][1]  = ( 1.0f - ( ssbb[3] + ( ( 1.0f - ssbb[3] ) / 2.0f ) ) ) * vCorrection;
+        mOtherFaceUVs[2][1]  = ( ssbb[1] / 2.0f ) * vCorrection;
         mOtherFaceUVs[2][2]  = 1.0f;
         mOtherFaceUVs[2][3]  = ( ssbb[0] / 2.0f ) * uCorrection;
-        mOtherFaceUVs[2][4] = ( 1.0f - ( ssbb[3] + ( ( 1.0f - ssbb[3] ) / 2.0f ) ) ) * vCorrection;
-        mOtherFaceUVs[2][5] = 1.0f;
+        mOtherFaceUVs[2][4]  = ( ssbb[1] / 2.0f ) * vCorrection;
+        mOtherFaceUVs[2][5]  = 1.0f;
         mOtherFaceUVs[2][6]  = ssbb[2] * uCorrection;
-        mOtherFaceUVs[2][7]  = ( 1.0f - ssbb[3] ) * vCorrection;
+        mOtherFaceUVs[2][7]  = ssbb[1] * vCorrection;
         mOtherFaceUVs[2][8]  = 1.0f;
         mOtherFaceUVs[2][9]  = ssbb[0] * uCorrection;
-        mOtherFaceUVs[2][10]  = ( 1.0f - ssbb[3] ) * vCorrection;
-        mOtherFaceUVs[2][11]  = 1.0f;
+        mOtherFaceUVs[2][10] = ssbb[1] * vCorrection;
+        mOtherFaceUVs[2][11] = 1.0f;
        
-        
         // Negative Y (Bottom)
         mOtherFaceUVs[3][0]  = ssbb[2] * uCorrection;
-        mOtherFaceUVs[3][1]  = ( 1.0f - ssbb[1] ) * vCorrection;
+        mOtherFaceUVs[3][1]  = ssbb[3] * vCorrection;
         mOtherFaceUVs[3][2]  = 1.0f;
         mOtherFaceUVs[3][3]  = ssbb[0] * uCorrection;
-        mOtherFaceUVs[3][4] = ( 1.0f - ssbb[1] ) * vCorrection;
-        mOtherFaceUVs[3][5] = 1.0f;
+        mOtherFaceUVs[3][4]  = ssbb[3] * vCorrection;
+        mOtherFaceUVs[3][5]  = 1.0f;
         mOtherFaceUVs[3][6]  = ( ssbb[2] + ( ( 1.0f - ssbb[2] ) / 2.0f ) ) * uCorrection;
-        mOtherFaceUVs[3][7]  = ( 1.0f - ( ssbb[1] / 2.0f ) ) * vCorrection;
+        mOtherFaceUVs[3][7]  = ( ssbb[3] + ( ( 1.0f - ssbb[3] ) / 2.0f ) )  * vCorrection;
         mOtherFaceUVs[3][8]  = 1.0f;
         mOtherFaceUVs[3][9]  = ( ssbb[0] / 2.0f ) * uCorrection;
-        mOtherFaceUVs[3][10]  = ( 1.0f - ( ssbb[1] / 2.0f ) ) * vCorrection;
-        mOtherFaceUVs[3][11]  = 1.0f;
+        mOtherFaceUVs[3][10] = ( ssbb[3] + ( ( 1.0f - ssbb[3] ) / 2.0f ) ) * vCorrection;
+        mOtherFaceUVs[3][11] = 1.0f;
         
-        
+       
         // Positive Z
         mOtherFaceUVs[4][0] = ssbb[0] * uCorrection;
         mOtherFaceUVs[4][1] = ( 1.0f - ssbb[1] ) * vCorrection;
