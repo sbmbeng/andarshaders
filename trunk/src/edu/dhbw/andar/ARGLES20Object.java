@@ -165,7 +165,7 @@ public abstract class ARGLES20Object extends ARObject {
 				ssbb[0], ssbb[3], 0.0f,
 				ssbb[2], ssbb[3], 0.0f
 		};
-		mRenderer.mDebugDraw.debugTriangleStrip( ssbbverts );
+		//mRenderer.mDebugDraw.debugTriangleStrip( ssbbverts );
 		mRenderer.generateCubemap( ssbb );
 	}
 	

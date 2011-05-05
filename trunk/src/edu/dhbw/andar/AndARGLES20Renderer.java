@@ -73,9 +73,15 @@ public class AndARGLES20Renderer extends AndARRenderer {
 	private int maPositionHandle;
 	private int maTextureHandle;
 	private int[] mFrameBuffers;
+	
+	private int mProjProgram;
+	private int mProjSamplerLoc;
+	private int muProjMVPMatrixHandle;
+	private int maProjPositionHandle;
+	private int maProjTextureHandle;
 	private int mCubeMapTexture;
 	private DynamicCubemap mDC;
-	private int mDebugFace = 4; // -1 for no debug
+	private int mDebugFace = 0; // -1 for no debug
 	
 	/**
 	 * mode, being either GLES20.GL_RGB or GLES20.GL_LUMINANCE
@@ -125,6 +131,34 @@ public class AndARGLES20Renderer extends AndARRenderer {
         mSamplerLoc = GLES20.glGetUniformLocation (mProgram, "sTexture");
         GraphicsUtil.checkGlError("glGetUniformLocation sTexture");
         if (mSamplerLoc == -1) {
+        	throw new RuntimeException("Could not get uniform location for SamplerLoc");
+        }
+        
+        // Load the projective texture program
+		mProjProgram = GraphicsUtil.loadProgram( activity, "shaders/projtexture.vs", "shaders/projtexture.fs" );
+        if (mProjProgram == 0) { 
+            return;
+        }
+        
+        // Grab Attributes and uniforms from the loaded shader
+        maProjPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
+        GraphicsUtil.checkGlError("glGetAttribLocation aPosition");
+        if (maProjPositionHandle == -1) {
+            throw new RuntimeException("Could not get attrib location for aPosition");
+        }
+        maProjTextureHandle = GLES20.glGetAttribLocation(mProgram, "aTextureCoord");
+        GraphicsUtil.checkGlError("glGetAttribLocation aTextureCoord");
+        if (maProjTextureHandle == -1) {
+            throw new RuntimeException("Could not get attrib location for aTextureCoord");
+        }
+        muProjMVPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVPMatrix");
+        GraphicsUtil.checkGlError("glGetUniformLocation uMVPMatrix");
+        if (muProjMVPMatrixHandle == -1) {
+            throw new RuntimeException("Could not get attrib location for uMVPMatrix");
+        }
+        mProjSamplerLoc = GLES20.glGetUniformLocation (mProgram, "sTexture");
+        GraphicsUtil.checkGlError("glGetUniformLocation sTexture");
+        if (mProjSamplerLoc == -1) {
         	throw new RuntimeException("Could not get uniform location for SamplerLoc");
         }
         
@@ -238,8 +272,11 @@ public class AndARGLES20Renderer extends AndARRenderer {
 			float[] projmatrix = new float[16]; // Projection Matrix
 			Matrix.orthoM(projmatrix, 0, -1.0f, 5.0f, -1.0f, 5.0f, -1.0f, 1.0f);
 			Matrix.multiplyMM(mMVPMatrix, 0, projmatrix, 0, mVMatrix, 0);
-			GLES20.glUniformMatrix4fv(muMVPMatrixHandle, 1, false, mMVPMatrix, 0);
-			mDC.DrawFace( mDebugFace, maPositionHandle, maTextureHandle );
+			GLES20.glUseProgram(mProjProgram);
+			GLES20.glUniformMatrix4fv(muProjMVPMatrixHandle, 1, false, mMVPMatrix, 0);
+	        GLES20.glUniform1i(mProjSamplerLoc, 0); // Use the camera texture (bound in unit zero)
+			GraphicsUtil.checkGlError("glUseProgram");
+			mDC.DrawFace( mDebugFace, maProjPositionHandle, maProjTextureHandle );
 		}
 		
 		GLES20.glDisableVertexAttribArray(maPositionHandle);
@@ -314,9 +351,23 @@ public class AndARGLES20Renderer extends AndARRenderer {
 		float[] projmatrix = new float[16]; // Projection Matrix
 		Matrix.orthoM(projmatrix, 0, -1.0f, 1.0f, -1.0f, 1.0f, -1.0f, 1.0f);
 		Matrix.multiplyMM(mMVPMatrix, 0, projmatrix, 0, mVMatrix, 0);
+		
+		// Render to the Projective cubemap faces
+		for( int i = 0; i < 4; i++ ) {
+			GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFrameBuffers[i]);
+			GLES20.glViewport( 0, 0, edu.dhbw.andar.Config.CUBEMAP_SIZE, edu.dhbw.andar.Config.CUBEMAP_SIZE);
+			GLES20.glClear( GLES20.GL_COLOR_BUFFER_BIT );
+	        GLES20.glActiveTexture(GLES20.GL_TEXTURE0);
+			GLES20.glBindTexture(GLES20.GL_TEXTURE_2D, textureName);
+			GLES20.glUseProgram(mProjProgram);
+			GLES20.glUniformMatrix4fv(muProjMVPMatrixHandle, 1, false, mMVPMatrix, 0);
+	        GLES20.glUniform1i(mProjSamplerLoc, 0); // Use the camera texture (bound in unit zero)
+			GraphicsUtil.checkGlError("glUseProgram");
+			mDC.DrawFace( i, maProjPositionHandle, maProjTextureHandle );
+		}
         
 		// Render to the cubemap faces
-		for( int i = 0; i < 6; i++ ) {
+		for( int i = 4; i < 6; i++ ) {
 			GLES20.glBindFramebuffer(GLES20.GL_FRAMEBUFFER, mFrameBuffers[i]);
 			GLES20.glViewport( 0, 0, edu.dhbw.andar.Config.CUBEMAP_SIZE, edu.dhbw.andar.Config.CUBEMAP_SIZE);
 			GLES20.glClear( GLES20.GL_COLOR_BUFFER_BIT );
