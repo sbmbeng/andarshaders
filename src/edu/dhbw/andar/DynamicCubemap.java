@@ -403,6 +403,7 @@ public class DynamicCubemap {
         
        
         // Positive Z
+        /*
         mOtherFaceUVs[4][0] = ssbb[0] * uCorrection;
         mOtherFaceUVs[4][1] = ( 1.0f - ssbb[1] ) * vCorrection;
         mOtherFaceUVs[4][2] = ssbb[2] * uCorrection;
@@ -411,6 +412,16 @@ public class DynamicCubemap {
         mOtherFaceUVs[4][5] = ( 1.0f - ssbb[3] ) * vCorrection;
         mOtherFaceUVs[4][6] = ssbb[2] * uCorrection;
         mOtherFaceUVs[4][7] = ( 1.0f - ssbb[3] ) * vCorrection;
+        */
+        
+        mOtherFaceUVs[4][0] = ssbb[0] * uCorrection;
+        mOtherFaceUVs[4][1] = ssbb[1] * vCorrection;
+        mOtherFaceUVs[4][2] = ssbb[2] * uCorrection;
+        mOtherFaceUVs[4][3] = ssbb[1] * vCorrection;
+        mOtherFaceUVs[4][4] = ssbb[0] * uCorrection;
+        mOtherFaceUVs[4][5] = ssbb[3] * vCorrection;
+        mOtherFaceUVs[4][6] = ssbb[2] * uCorrection;
+        mOtherFaceUVs[4][7] = ssbb[3] * vCorrection;
         
         // Update the floatbuffers
         for( int i = 0; i < 5; i++ ) {
