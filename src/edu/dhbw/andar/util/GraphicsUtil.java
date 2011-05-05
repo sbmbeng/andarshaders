@@ -22,6 +22,7 @@ public class GraphicsUtil {
 	public static final int FLOAT_SIZE_BYTES = 4;
     public static final int TRIANGLE_VERTICES_DATA_STRIDE_BYTES = 3 * FLOAT_SIZE_BYTES;
     public static final int TRIANGLE_VERTICES_UV_STRIDE_BYTES = 2 * FLOAT_SIZE_BYTES;
+    public static final int TRIANGLE_VERTICES_UVQ_STRIDE_BYTES = 3 * FLOAT_SIZE_BYTES;
     public static final int VERTEX_NORMAL_DATA_STRIDE = 3 * FLOAT_SIZE_BYTES;
 	
 	/**

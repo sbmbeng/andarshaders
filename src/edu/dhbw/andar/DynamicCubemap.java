@@ -18,32 +18,32 @@ public class DynamicCubemap {
 			 1.0f,  1.0f, 0.0f };
 	private float[][] mOtherFaceUVs = {
 			{ // Positive X
-				0.0f, 0.0f,
-				1.0f, 0.0f,
-				0.0f, 1.0f,
-				1.0f, 1.0f
+				0.0f, 0.0f, 1.0f,
+				1.0f, 0.0f, 1.0f,
+				0.0f, 1.0f, 1.0f,
+				1.0f, 1.0f, 1.0f,
 			},
 			{ // Negative X
-				0.0f, 0.0f,
-				1.0f, 0.0f,
-				0.0f, 1.0f,
-				1.0f, 1.0f
+				0.0f, 0.0f, 1.0f,
+				1.0f, 0.0f, 1.0f,
+				0.0f, 1.0f, 1.0f,
+				1.0f, 1.0f, 1.0f,
 			},
 			{ // Positive Y
-				0.0f, 0.0f,
-				1.0f, 0.0f,
-				0.0f, 1.0f,
-				1.0f, 1.0f
+				0.0f, 0.0f, 1.0f,
+				1.0f, 0.0f, 1.0f,
+				0.0f, 1.0f, 1.0f,
+				1.0f, 1.0f, 1.0f,
 			},
 			{ // Negative Y
-				0.0f, 0.0f,
-				1.0f, 0.0f,
-				0.0f, 1.0f,
-				1.0f, 1.0f
+				0.0f, 0.0f, 1.0f,
+				1.0f, 0.0f, 1.0f,
+				0.0f, 1.0f, 1.0f,
+				1.0f, 1.0f, 1.0f,
 			},
 			{ // Positive Z
 				0.0f, 0.0f,
-				1.0f, 0.0f,
+				1.0f, 0.0f, 
 				0.0f, 1.0f,
 				1.0f, 1.0f
 			}
@@ -302,7 +302,7 @@ public class DynamicCubemap {
         	mFrontFaceUVs[ tidx++ ] = ( ow * ( i + 1 ) ) * vCorrection;
         	
         	mFrontFaceUVs[ tidx++ ] = ac * uCorrection;
-        	mFrontFaceUVs[ tidx++ ] =  ( is + ( iw * ( i + 1) ) ) * vCorrection;
+        	mFrontFaceUVs[ tidx++ ] = ( is + ( iw * ( i + 1) ) ) * vCorrection;
         }
         
         // Zone 5
@@ -324,7 +324,7 @@ public class DynamicCubemap {
         ac = ssbb[2] + ( ( 1.0f - ssbb[2] ) / 2.0f );
         for( int i = 0; i < n; i++ ) {
         	mFrontFaceUVs[ tidx++ ] = ac * uCorrection;
-        	mFrontFaceUVs[ tidx++ ] = ( cy + ( iw * i ) ) * vCorrection;
+        	mFrontFaceUVs[ tidx++ ] = ( cy + ( iw * i ) )  * vCorrection;
         	
         	mFrontFaceUVs[ tidx++ ] = ac * uCorrection;
         	mFrontFaceUVs[ tidx++ ] = ( cy + ( iw * ( i + 1 ) ) ) * vCorrection;
@@ -338,55 +338,80 @@ public class DynamicCubemap {
         mFrontFaceTBuffer.put( mFrontFaceUVs );
         
         // Update all other face UV Buffers
+   
+        // Perspective Calculations first
+        float ay = ( ssbb[3] + ( ( 1.0f - ssbb[3] ) / 2.0f ) );
+        float by = ( ssbb[1] / 2.0f );
+        float lw = ay - by;
+        float q = lw / ( ssbb[3] - ssbb[1] );
+        
         // Positive X (Left)
-        mOtherFaceUVs[0][0] = ssbb[2] * uCorrection;
-        mOtherFaceUVs[0][1] = ssbb[1] * vCorrection;
-        mOtherFaceUVs[0][2] = ( ssbb[2] + ( ( 1.0f - ssbb[2] ) / 2.0f ) ) * uCorrection;
-        mOtherFaceUVs[0][3] = ( ssbb[1] / 2.0f ) * vCorrection;
-        mOtherFaceUVs[0][4] = ssbb[2] * uCorrection;
-        mOtherFaceUVs[0][5] = ssbb[3] * vCorrection;
-        mOtherFaceUVs[0][6] = ( ssbb[2] + ( ( 1.0f - ssbb[2] ) / 2.0f ) ) * uCorrection;
-        mOtherFaceUVs[0][7] = ( ssbb[3] + ( ( 1.0f - ssbb[3] ) / 2.0f ) ) * vCorrection;
+        mOtherFaceUVs[0][0]  = ssbb[0] * uCorrection;
+        mOtherFaceUVs[0][1]  = ssbb[1] * vCorrection;
+        mOtherFaceUVs[0][2]  = 1.0f;
+        mOtherFaceUVs[0][3]  = ( ssbb[0] / 2.0f ) * uCorrection;
+        mOtherFaceUVs[0][4]  = ( ssbb[1] / 2.0f ) * vCorrection;
+        mOtherFaceUVs[0][5]  = 1.0f; // q
+        mOtherFaceUVs[0][6]  = ssbb[0] * uCorrection;
+        mOtherFaceUVs[0][7]  = ssbb[3] * vCorrection;
+        mOtherFaceUVs[0][8]  = 1.0f;
+        mOtherFaceUVs[0][9]  = ( ssbb[0] / 2.0f ) * uCorrection;
+        mOtherFaceUVs[0][10] = ( ssbb[3] + ( ( 1.0f - ssbb[3] ) / 2.0f ) ) * vCorrection;
+        mOtherFaceUVs[0][11] = 1.0f; // q
         
         // Negative X (Right)
-        mOtherFaceUVs[1][0] = ( ssbb[0] / 2.0f ) * uCorrection;
-        mOtherFaceUVs[1][1] = ( ssbb[1] / 2.0f ) * vCorrection;
-        mOtherFaceUVs[1][2] = ssbb[0] * uCorrection;
-        mOtherFaceUVs[1][3] = ssbb[1] * vCorrection;
-        mOtherFaceUVs[1][4] = ( ssbb[0] / 2.0f ) * uCorrection;
-        mOtherFaceUVs[1][5] = ( ssbb[3] + ( ( 1.0f - ssbb[3] ) / 2.0f ) ) * vCorrection;
-        mOtherFaceUVs[1][6] = ssbb[0] * uCorrection;
-        mOtherFaceUVs[1][7] = ssbb[3] * vCorrection;
+        mOtherFaceUVs[1][0]  = ( ssbb[2] + ( ( 1.0f - ssbb[2] ) / 2.0f ) ) * uCorrection;
+        mOtherFaceUVs[1][1]  = ( ssbb[1] / 2.0f ) * vCorrection;
+        mOtherFaceUVs[1][2]  = 1.0f; //q
+        mOtherFaceUVs[1][3]  = ssbb[2] * uCorrection;
+        mOtherFaceUVs[1][4]  = ssbb[1] * vCorrection;
+        mOtherFaceUVs[1][5]  = 1.0f;
+        mOtherFaceUVs[1][6]  = ( ssbb[2] + ( ( 1.0f - ssbb[2] ) / 2.0f ) ) * uCorrection;
+        mOtherFaceUVs[1][7]  = ( ssbb[3] + ( ( 1.0f - ssbb[3] ) / 2.0f ) ) * vCorrection;
+        mOtherFaceUVs[1][8]  = 1.0f; //q
+        mOtherFaceUVs[1][9]  = ssbb[2] * uCorrection;
+        mOtherFaceUVs[1][10] = ssbb[3] * vCorrection;
+        mOtherFaceUVs[1][11] = 1.0f;
         
         // Positive Y (Top)
-        mOtherFaceUVs[2][0] = ssbb[0] * uCorrection;
-        mOtherFaceUVs[2][1] = ssbb[3] * vCorrection;
-        mOtherFaceUVs[2][2] = ssbb[2] * uCorrection;
-        mOtherFaceUVs[2][3] = ssbb[3] * vCorrection;
-        mOtherFaceUVs[2][4] = ( ssbb[0] / 2.0f ) * uCorrection;
-        mOtherFaceUVs[2][5] = ( ssbb[3] + ( ( 1.0f - ssbb[3] ) / 2.0f ) ) * vCorrection;
-        mOtherFaceUVs[2][6] = ( ssbb[2] + ( ( 1.0f - ssbb[2] ) / 2.0f ) ) * uCorrection;
-        mOtherFaceUVs[2][7] = ( ssbb[3] + ( ( 1.0f - ssbb[3] ) / 2.0f ) ) * vCorrection;
+        mOtherFaceUVs[2][0]  = ( ssbb[2] + ( ( 1.0f - ssbb[2] ) / 2.0f ) ) * uCorrection;
+        mOtherFaceUVs[2][1]  = ( 1.0f - ( ssbb[3] + ( ( 1.0f - ssbb[3] ) / 2.0f ) ) ) * vCorrection;
+        mOtherFaceUVs[2][2]  = 1.0f;
+        mOtherFaceUVs[2][3]  = ( ssbb[0] / 2.0f ) * uCorrection;
+        mOtherFaceUVs[2][4] = ( 1.0f - ( ssbb[3] + ( ( 1.0f - ssbb[3] ) / 2.0f ) ) ) * vCorrection;
+        mOtherFaceUVs[2][5] = 1.0f;
+        mOtherFaceUVs[2][6]  = ssbb[2] * uCorrection;
+        mOtherFaceUVs[2][7]  = ( 1.0f - ssbb[3] ) * vCorrection;
+        mOtherFaceUVs[2][8]  = 1.0f;
+        mOtherFaceUVs[2][9]  = ssbb[0] * uCorrection;
+        mOtherFaceUVs[2][10]  = ( 1.0f - ssbb[3] ) * vCorrection;
+        mOtherFaceUVs[2][11]  = 1.0f;
+       
         
         // Negative Y (Bottom)
-        mOtherFaceUVs[3][0] = ( ssbb[0] / 2.0f ) * uCorrection;
-        mOtherFaceUVs[3][1] = ( ssbb[1] / 2.0f ) * vCorrection;
-        mOtherFaceUVs[3][2] = ( ssbb[2] + ( ( 1.0f - ssbb[2] ) / 2.0f ) ) * uCorrection;
-        mOtherFaceUVs[3][3] = ( ssbb[1] / 2.0f ) * vCorrection;
-        mOtherFaceUVs[3][4] = ssbb[0] * uCorrection;
-        mOtherFaceUVs[3][5] = ssbb[1] * vCorrection;
-        mOtherFaceUVs[3][6] = ssbb[2] * uCorrection;
-        mOtherFaceUVs[3][7] = ssbb[1] * vCorrection;
+        mOtherFaceUVs[3][0]  = ssbb[2] * uCorrection;
+        mOtherFaceUVs[3][1]  = ( 1.0f - ssbb[1] ) * vCorrection;
+        mOtherFaceUVs[3][2]  = 1.0f;
+        mOtherFaceUVs[3][3]  = ssbb[0] * uCorrection;
+        mOtherFaceUVs[3][4] = ( 1.0f - ssbb[1] ) * vCorrection;
+        mOtherFaceUVs[3][5] = 1.0f;
+        mOtherFaceUVs[3][6]  = ( ssbb[2] + ( ( 1.0f - ssbb[2] ) / 2.0f ) ) * uCorrection;
+        mOtherFaceUVs[3][7]  = ( 1.0f - ( ssbb[1] / 2.0f ) ) * vCorrection;
+        mOtherFaceUVs[3][8]  = 1.0f;
+        mOtherFaceUVs[3][9]  = ( ssbb[0] / 2.0f ) * uCorrection;
+        mOtherFaceUVs[3][10]  = ( 1.0f - ( ssbb[1] / 2.0f ) ) * vCorrection;
+        mOtherFaceUVs[3][11]  = 1.0f;
+        
         
         // Positive Z
         mOtherFaceUVs[4][0] = ssbb[0] * uCorrection;
-        mOtherFaceUVs[4][1] = ssbb[1] * vCorrection;
+        mOtherFaceUVs[4][1] = ( 1.0f - ssbb[1] ) * vCorrection;
         mOtherFaceUVs[4][2] = ssbb[2] * uCorrection;
-        mOtherFaceUVs[4][3] = ssbb[1] * vCorrection;
+        mOtherFaceUVs[4][3] = ( 1.0f - ssbb[1] ) * vCorrection;
         mOtherFaceUVs[4][4] = ssbb[0] * uCorrection;
-        mOtherFaceUVs[4][5] = ssbb[3] * vCorrection;
+        mOtherFaceUVs[4][5] = ( 1.0f - ssbb[3] ) * vCorrection;
         mOtherFaceUVs[4][6] = ssbb[2] * uCorrection;
-        mOtherFaceUVs[4][7] = ssbb[3] * vCorrection;
+        mOtherFaceUVs[4][7] = ( 1.0f - ssbb[3] ) * vCorrection;
         
         // Update the floatbuffers
         for( int i = 0; i < 5; i++ ) {
@@ -439,15 +464,28 @@ public class DynamicCubemap {
 		}
 		
 		// Enable attributes in current program
-		GLES20.glVertexAttribPointer(positionhandle, 3, GLES20.GL_FLOAT, false,
-                GraphicsUtil.TRIANGLE_VERTICES_DATA_STRIDE_BYTES, vbuffer);
-		GraphicsUtil.checkGlError("glVertexAttribPointer maPosition");
+		if( face < 4 ) {
+			GLES20.glVertexAttribPointer(positionhandle, 3, GLES20.GL_FLOAT, false,
+	                GraphicsUtil.TRIANGLE_VERTICES_DATA_STRIDE_BYTES, vbuffer);
+			GraphicsUtil.checkGlError("glVertexAttribPointer maPosition");
+	        
+			GLES20.glVertexAttribPointer(texturehandle, 3, GLES20.GL_FLOAT, false,
+	        		GraphicsUtil.TRIANGLE_VERTICES_UVQ_STRIDE_BYTES, tbuffer);
+			GraphicsUtil.checkGlError("glVertexAttribPointer maTextureHandle");
+		}
+		else {
+			GLES20.glVertexAttribPointer(positionhandle, 3, GLES20.GL_FLOAT, false,
+	                GraphicsUtil.TRIANGLE_VERTICES_DATA_STRIDE_BYTES, vbuffer);
+			GraphicsUtil.checkGlError("glVertexAttribPointer maPosition");
+	        
+			GLES20.glVertexAttribPointer(texturehandle, 2, GLES20.GL_FLOAT, false,
+	        		GraphicsUtil.TRIANGLE_VERTICES_UV_STRIDE_BYTES, tbuffer);
+			GraphicsUtil.checkGlError("glVertexAttribPointer maTextureHandle");
+		}
+			
+		
 		GLES20.glEnableVertexAttribArray(positionhandle);
 		GraphicsUtil.checkGlError("glEnableVertexAttribArray maPositionHandle");
-        
-		GLES20.glVertexAttribPointer(texturehandle, 2, GLES20.GL_FLOAT, false,
-        		GraphicsUtil.TRIANGLE_VERTICES_UV_STRIDE_BYTES, tbuffer);
-		GraphicsUtil.checkGlError("glVertexAttribPointer maTextureHandle");
 		GLES20.glEnableVertexAttribArray(texturehandle);
 		GraphicsUtil.checkGlError("glEnableVertexAttribArray maTextureHandle");
 		
