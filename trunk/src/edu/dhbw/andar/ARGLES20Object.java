@@ -154,7 +154,7 @@ public abstract class ARGLES20Object extends ARObject {
 	 */
 	public void GenerateCubemap( float[] vertices ) {
 		float[] aabb = GraphicsUtil.calcAABB( vertices );
-		//Log.v("ARGLES20Object", "AABB: Min: ( " + aabb[0] + ", " + aabb[1] + ", " + aabb[2] + " ), Max: ( " + aabb[3] + ", " + aabb[4] + ", " + aabb[5] + " ) " );
+		//Log.d("ARGLES20Object", "AABB: Min: ( " + aabb[0] + ", " + aabb[1] + ", " + aabb[2] + " ), Max: ( " + aabb[3] + ", " + aabb[4] + ", " + aabb[5] + " ) " );
 		float[] ssbb = calcSSBB( aabb );
 		//Log.d("ARGLES20Object", "SSBB: Min: ( " + ssbb[0] + ", " + ssbb[1] + " ), Max: ( " + ssbb[2] + ", " + ssbb[3] + ") " );
 		float[] ssbbverts = {
