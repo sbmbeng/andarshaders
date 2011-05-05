@@ -81,7 +81,7 @@ public class AndARGLES20Renderer extends AndARRenderer {
 	private int maProjTextureHandle;
 	private int mCubeMapTexture;
 	private DynamicCubemap mDC;
-	private int mDebugFace = 0; // -1 for no debug
+	private int mDebugFace = -1; // -1 for no debug
 	
 	/**
 	 * mode, being either GLES20.GL_RGB or GLES20.GL_LUMINANCE
