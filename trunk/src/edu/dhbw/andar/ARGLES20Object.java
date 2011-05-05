@@ -119,6 +119,9 @@ public abstract class ARGLES20Object extends ARObject {
 		// http://www.opengl.org/sdk/docs/man/xhtml/gluProject.xml
 		float[] t = { 0.0f, 0.0f, 0.0f, 1.0f };
 		float[] ssbb = { Float.MAX_VALUE, Float.MAX_VALUE, Float.MIN_VALUE, Float.MIN_VALUE };
+		float[] MVPMat = new float[16];
+		Matrix.multiplyMM(MVPMat, 0, glCameraMatrix, 0, glMatrix, 0);
+		float[] res = new float[4];
 		for( int i = 0; i < 8; i++ )
 		{
 			// Test all points in the aabb
@@ -128,15 +131,14 @@ public abstract class ARGLES20Object extends ARObject {
 			t[3] = 1.0f;
 			
 			// Project the point by the ModelView matrix then the Projection Matrix
-			Matrix.multiplyMV(t, 0, glMatrix, 0, t, 0);
-			Matrix.multiplyMV(t, 0, glCameraMatrix, 0, t, 0);
+			Matrix.multiplyMV(res, 0, MVPMat, 0, t, 0);
 			
 			// Save mins and maxs
-			float x = ( ( t[0] / t[3] ) + 1.0f ) * 0.5f;
-			float y = ( ( t[1] / t[3] ) + 1.0f ) * 0.5f;
+			float x = ( ( res[0] / res[3] ) + 1.0f ) * 0.5f;
+			float y = ( ( res[1] / res[3] ) + 1.0f ) * 0.5f;
 			if( x < ssbb[0] ) ssbb[0] = x;
 			if( x > ssbb[2] ) ssbb[2] = x;
-			if( y < ssbb[2] ) ssbb[1] = y;
+			if( y < ssbb[1] ) ssbb[1] = y;
 			if( y > ssbb[3] ) ssbb[3] = y;
 		}
 		
