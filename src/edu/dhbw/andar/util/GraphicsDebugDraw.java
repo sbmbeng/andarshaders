@@ -28,22 +28,22 @@ public class GraphicsDebugDraw
     	// Load and compile the program, grab the attribute for transformation matrix
 		mProgram = GraphicsUtil.loadProgram( activity, "shaders/debugshader.vs", "shaders/debugshader.fs" );
 		muMVMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uMVMatrix");
-        GraphicsUtil.checkGlError("ARGLES20Object glGetUniformLocation uMVMatrix");
+        GraphicsUtil.checkGlError("GraphicsDebugDraw glGetUniformLocation uMVMatrix");
         if (muMVMatrixHandle == -1) {
             throw new RuntimeException("Requested shader does not have a uniform named uMVMatrix");
         }
         muPMatrixHandle = GLES20.glGetUniformLocation(mProgram, "uPMatrix");
-        GraphicsUtil.checkGlError("ARGLES20Object glGetUniformLocation uPMatrix");
+        GraphicsUtil.checkGlError("GraphicsDebugDraw glGetUniformLocation uPMatrix");
         if (muPMatrixHandle == -1) {
             throw new RuntimeException("Requested shader does not have a uniform named uPMatrix");
         } 
     	maPositionHandle = GLES20.glGetAttribLocation(mProgram, "aPosition");
-        GraphicsUtil.checkGlError("glGetAttribLocation aPosition");
+        GraphicsUtil.checkGlError("GraphicsDebugDraw glGetAttribLocation aPosition");
         if (maPositionHandle == -1) {
             throw new RuntimeException("DebugShader missing attribute aPosition");
         }
         muColor = GLES20.glGetUniformLocation(mProgram, "uColor");
-        GraphicsUtil.checkGlError("glGetUniformLocation uColor");
+        GraphicsUtil.checkGlError("GraphicsDebugDraw glGetUniformLocation uColor");
         if (muColor == -1) {
             throw new RuntimeException("Could not get uniform location for uColor");
         }
