@@ -51,7 +51,6 @@ public class ReflectiveObject extends ARGLES20Object {
         GLES20.glUniform1i( muCubemap, 1 );
         GraphicsUtil.checkGlError("CustomGL20Object glUniform1i");
         
-        Log.v( "ReflectiveObject", "Drawing the final image" );
         GLES20.glDrawElements ( GLES20.GL_TRIANGLES, mSphere.getNumIndices(), GLES20.GL_UNSIGNED_SHORT, mSphere.getIndices() );
 	    GraphicsUtil.checkGlError("glDrawElements");
 	    
@@ -82,7 +81,7 @@ public class ReflectiveObject extends ARGLES20Object {
         }
         
         // Generate the vertex data
-        mSphere.genSphere( 20, 25.0f );
+        mSphere.genSphere( 20, 75.0f );
 	}
 
 	/**

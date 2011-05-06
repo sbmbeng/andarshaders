@@ -1,23 +1,36 @@
 precision mediump float;
-uniform mat4 uMVPMatrix;
-uniform vec4 uCamera;
-attribute vec4 aNormal;
+uniform mat4 uMVMatrix;
+uniform mat4 uPMatrix;
+uniform mat4 uNormalMatrix;
 attribute vec4 aPosition;
-varying vec4 vNormal;
-varying vec4 vPosition;
-varying vec4 vSPosition;
-uniform vec2 uViewport;
+attribute vec3 aNormal;
+varying vec3 normal;
+varying vec3 view;
 
-// a shader for Refraction!
+mat3 GetTransNormal( mat4 m )
+{
+	float det = m[0][0]*(m[1][1]*m[2][2]-m[1][2]*m[2][1])
+              - m[0][1]*(m[1][0]*m[2][2]-m[1][2]*m[2][0]) 
+              + m[0][2]*(m[1][0]*m[2][1]-m[1][1]*m[2][0]);
+    
+	mat3 ret;
+	ret[0][0] = ( m[1][1]*m[2][2]-m[2][1]*m[1][2] ) / det;
+	ret[1][0] = ( m[0][2]*m[2][1]-m[2][2]*m[0][1] ) / det;
+	ret[2][0] = ( m[0][1]*m[1][2]-m[1][1]*m[0][2] ) / det;
+	ret[0][1] = ( m[1][2]*m[2][0]-m[2][2]*m[1][0] ) / det;
+	ret[1][1] = ( m[0][0]*m[2][2]-m[2][0]*m[0][2] ) / det;
+	ret[2][1] = ( m[0][2]*m[1][0]-m[1][2]*m[0][0] ) / det;
+	ret[0][2] = ( m[1][0]*m[2][1]-m[2][0]*m[1][1] ) / det;
+	ret[1][2] = ( m[0][1]*m[2][0]-m[2][1]*m[0][0] ) / det;
+	ret[2][2] = ( m[0][0]*m[1][1]-m[1][0]*m[0][1] ) / det;
+	
+	return ret;
+}
 
-void main(void) {
-  // pass along the normal 
-  vec4 asdf = uCamera;
-  vNormal = aNormal;
-  vPosition = aPosition;
-  vSPosition = uMVPMatrix * aPosition;
-  vSPosition.x = (vSPosition.x/uViewport.x) + 0.5;
-  vSPosition.y = (vSPosition.y/uViewport.y) + 0.5;
-  
-  gl_Position = uMVPMatrix * aPosition;
+void main(void){
+	mat4 mvpmatrix = uPMatrix * uMVMatrix;
+	vec4 worldpos = mvpmatrix * aPosition;
+	gl_Position = worldpos;
+	normal = normalize( GetTransNormal( uMVMatrix ) * aNormal );
+	view = normalize( uMVMatrix * aPosition ).xyz;
 }
