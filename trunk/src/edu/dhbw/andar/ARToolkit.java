@@ -238,7 +238,6 @@ public class ARToolkit {
 	 */
 	public final void predraw(GL10 gl) {
 		if(initialized) {
-			Log.v("ARToolkit", "Predrawing " + arobjects.size() + " objects...");
 			if(Config.DEBUG)
 				Log.i("MarkerInfo", "going to predraw opengl stuff now");
 			for (ARObject obj : arobjects) {
@@ -254,7 +253,6 @@ public class ARToolkit {
 	 */
 	public final void draw(GL10 gl) {
 		if(initialized) {
-			Log.v("ARToolkit", "Drawing " + arobjects.size() + " objects...");
 			if(Config.DEBUG)
 				Log.i("MarkerInfo", "going to draw opengl stuff now");
 			for (ARObject obj : arobjects) {
